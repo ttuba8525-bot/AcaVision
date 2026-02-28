@@ -1,212 +1,163 @@
 {% extends 'base.html' %}
-
-{% block head %}
-<style>
-    .predict-page {
-        padding: 4rem 1.5rem;
-        max-width: 1100px;
-        margin: 0 auto;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .form-submit {
-        margin-top: 2rem;
-        text-align: center;
-    }
-
-    .results-section {
-        animation: fadeIn 0.5s ease;
-    }
-
-    @media(max-width:768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="predict-page">
 
-    <!-- Page Header -->
-    <div class="section-header">
-        <p class="section-eyebrow">ML Prediction Engine</p>
-        <h1 class="section-title">Predict Your Academic Performance</h1>
-        <p class="section-sub">Fill in your details and let our 4 AI models analyse your academic profile instantly.</p>
-    </div>
+<section class="section">
+    <div class="section-inner">
+        <div class="text-center mb-4" data-aos="fade-up">
+            <div class="eyebrow">ML Prediction Engine</div>
+            <h1 class="section-title">Academic Profile <span class="accent">Analysis</span></h1>
+            <p style="color:var(--muted);max-width:520px;margin:0 auto">
+                Fill in your metrics — our 4 AI models will predict your exam score, pass/fail status, performance
+                category, and academic risk cluster.
+            </p>
+        </div>
 
-    <!-- Prediction Form -->
-    <div class="glass-card mb-4" id="predict-form-card">
-        <form id="predict-form">
-            <div class="form-grid">
+        <!-- INPUT FORM -->
+        <div id="form-panel" class="grid-2" data-aos="fade-up">
 
-                <!-- Attendance -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Attendance (%) <span class="range-value" id="attendance-val">75</span>
-                    </label>
-                    <input type="range" id="attendance" name="attendance" min="0" max="100" value="75"
-                        oninput="document.getElementById('attendance-val').textContent=this.value">
+            <!-- Left: numeric inputs -->
+            <div class="glass" style="padding:2rem">
+                <div
+                    style="font-family:var(--font-mono);font-size:.72rem;color:var(--cyan);letter-spacing:2px;margin-bottom:1.5rem">
+                    // NUMERIC FEATURES
                 </div>
 
-                <!-- Study Hours -->
                 <div class="form-group">
-                    <label class="form-label">
-                        Study Hours / Day <span class="range-value" id="study-val">4</span>
-                    </label>
-                    <input type="range" id="study_hours" name="study_hours" min="0" max="12" step="0.5" value="4"
-                        oninput="document.getElementById('study-val').textContent=this.value">
+                    <label class="form-label">Attendance (%) <span class="val" id="v-att">75</span></label>
+                    <input type="range" id="attendance" min="0" max="100" value="75" oninput="syncSlider(this,'v-att')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Study Hours / Day <span class="val" id="v-study">5</span></label>
+                    <input type="range" id="study_hours" min="0" max="12" step="0.5" value="5"
+                        oninput="syncSlider(this,'v-study')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assignment Score <span class="val" id="v-assign">70</span></label>
+                    <input type="range" id="assignment_score" min="0" max="100" value="70"
+                        oninput="syncSlider(this,'v-assign')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Previous GPA <span class="val" id="v-gpa">6.5</span></label>
+                    <input type="range" id="previous_gpa" min="0" max="10" step="0.1" value="6.5"
+                        oninput="syncSlider(this,'v-gpa')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Internet Usage hr/day <span class="val" id="v-net">4</span></label>
+                    <input type="range" id="internet_usage" min="0" max="12" step="0.5" value="4"
+                        oninput="syncSlider(this,'v-net')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sleep Hours / Night <span class="val" id="v-sleep">7</span></label>
+                    <input type="range" id="sleep_hours" min="3" max="10" step="0.5" value="7"
+                        oninput="syncSlider(this,'v-sleep')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Family Support Index <span class="val" id="v-fam">5</span></label>
+                    <input type="range" id="family_support" min="1" max="10" value="5"
+                        oninput="syncSlider(this,'v-fam')">
+                </div>
+            </div>
+
+            <!-- Right: categorical + submit -->
+            <div style="display:flex;flex-direction:column;gap:1.5rem">
+                <div class="glass" style="padding:2rem;flex:1">
+                    <div
+                        style="font-family:var(--font-mono);font-size:.72rem;color:var(--purple);letter-spacing:2px;margin-bottom:1.5rem">
+                        // CATEGORICAL FEATURES
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Participation Level</label>
+                        <select id="participation_level" class="form-control">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Extra-Curricular</label>
+                        <select id="extra_curricular" class="form-control">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Assignment Score -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Assignment Score <span class="range-value" id="assign-val">70</span>
-                    </label>
-                    <input type="range" id="assignment_score" name="assignment_score" min="0" max="100" value="70"
-                        oninput="document.getElementById('assign-val').textContent=this.value">
+                <!-- Info box -->
+                <div class="glass" style="padding:1.5rem;border-color:rgba(0,245,255,0.15)">
+                    <div style="font-family:var(--font-mono);font-size:.68rem;color:var(--muted);line-height:2">
+                        <span style="color:var(--cyan)">▶</span> Linear Regression → Exam Score<br>
+                        <span style="color:var(--cyan)">▶</span> Decision Tree → Pass / Fail<br>
+                        <span style="color:var(--cyan)">▶</span> KNN Classifier → Performance<br>
+                        <span style="color:var(--cyan)">▶</span> K-Means → Risk Cluster
+                    </div>
                 </div>
 
-                <!-- Previous GPA -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Previous GPA <span class="range-value" id="gpa-val">6.5</span>
-                    </label>
-                    <input type="range" id="previous_gpa" name="previous_gpa" min="0" max="10" step="0.1" value="6.5"
-                        oninput="document.getElementById('gpa-val').textContent=this.value">
-                </div>
-
-                <!-- Internet Usage -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Internet Usage hrs/day <span class="range-value" id="internet-val">4</span>
-                    </label>
-                    <input type="range" id="internet_usage" name="internet_usage" min="0" max="12" step="0.5" value="4"
-                        oninput="document.getElementById('internet-val').textContent=this.value">
-                </div>
-
-                <!-- Sleep Hours -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Sleep Hours / Night <span class="range-value" id="sleep-val">7</span>
-                    </label>
-                    <input type="range" id="sleep_hours" name="sleep_hours" min="3" max="10" step="0.5" value="7"
-                        oninput="document.getElementById('sleep-val').textContent=this.value">
-                </div>
-
-                <!-- Family Support Index -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Family Support Index <span class="range-value" id="family-val">5</span>
-                    </label>
-                    <input type="range" id="family_support" name="family_support" min="1" max="10" value="5"
-                        oninput="document.getElementById('family-val').textContent=this.value">
-                </div>
-
-                <!-- Participation Level -->
-                <div class="form-group">
-                    <label class="form-label">Participation Level</label>
-                    <select id="participation_level" name="participation_level" class="form-control">
-                        <option value="Low">Low</option>
-                        <option value="Medium" selected>Medium</option>
-                        <option value="High">High</option>
-                    </select>
-                </div>
-
-                <!-- Extra Curricular -->
-                <div class="form-group">
-                    <label class="form-label">Extra-Curricular Activities</label>
-                    <select id="extra_curricular" name="extra_curricular" class="form-control">
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-
-            </div><!-- /form-grid -->
-
-            <div class="form-submit">
-                <button type="submit" class="btn-primary magnetic" id="predict-btn" style="min-width:220px;">
-                    <i class="fa-solid fa-brain"></i> Analyse My Profile
+                <button id="predict-btn" class="btn btn-cyan" style="width:100%;justify-content:center;padding:1rem">
+                    <i class="fa-solid fa-brain"></i> Run Analysis
                 </button>
             </div>
-        </form>
+        </div>
+
+        <!-- RESULTS PANEL -->
+        <div id="results-panel" class="hidden mt-4">
+            <!-- Score cards -->
+            <div class="result-grid" id="score-cards"></div>
+
+            <!-- Advisory + bar chart side by side -->
+            <div class="grid-2 mt-3">
+                <div class="glass" style="padding:1.5rem">
+                    <div
+                        style="font-family:var(--font-mono);font-size:.72rem;color:var(--cyan);letter-spacing:2px;margin-bottom:1rem">
+                        // PERSONALISED ADVISORY
+                    </div>
+                    <ul class="advisory-list" id="advisory-list"></ul>
+                </div>
+                <div class="glass" style="padding:1.5rem">
+                    <div
+                        style="font-family:var(--font-mono);font-size:.72rem;color:var(--purple);letter-spacing:2px;margin-bottom:1rem">
+                        // YOUR FEATURE PROFILE
+                    </div>
+                    <canvas id="radar-chart" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-cyan" onclick="resetPrediction()">
+                    <i class="fa-solid fa-rotate-left"></i> New Analysis
+                </button>
+            </div>
+        </div>
     </div>
+</section>
 
-    <!-- Results Section (hidden until prediction) -->
-    <div id="results-section" class="hidden results-section">
-
-        <div class="section-header mb-3">
-            <p class="section-eyebrow">Your Results</p>
-            <h2 class="section-title" style="font-size:1.8rem;">Academic Profile Analysis</h2>
-        </div>
-
-        <!-- Score Cards -->
-        <div class="result-grid mb-4">
-            <div class="result-card primary glass-card">
-                <div class="label">Predicted Score</div>
-                <div class="value" id="res-score">—</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">out of 100</div>
-            </div>
-            <div class="result-card glass-card" id="res-passfail-card">
-                <div class="label">Pass / Fail</div>
-                <div class="value" id="res-passfail">—</div>
-            </div>
-            <div class="result-card glass-card" id="res-perf-card">
-                <div class="label">Performance</div>
-                <div class="value" id="res-performance">—</div>
-            </div>
-            <div class="result-card glass-card" id="res-risk-card">
-                <div class="label">Risk Level</div>
-                <div class="value" id="res-risk">—</div>
-            </div>
-        </div>
-
-        <!-- Advisory -->
-        <div class="glass-card">
-            <h3 style="margin-bottom:1.2rem; font-size:1.1rem;">
-                <i class="fa-solid fa-lightbulb" style="color:var(--warning);"></i>
-                &nbsp;Personalised Advisory
-            </h3>
-            <ul class="advisory-list" id="advisory-list"></ul>
-        </div>
-
-        <!-- Predict Again -->
-        <div class="text-center mt-4">
-            <button class="btn-outline" onclick="resetForm()">
-                <i class="fa-solid fa-rotate-left"></i> Predict Again
-            </button>
-        </div>
-
-    </div><!-- /results-section -->
-</div>
 {% endblock %}
-
 {% block scripts %}
 <script>
-    const form = document.getElementById('predict-form');
-    const resultsSection = document.getElementById('results-section');
-    const predictBtn = document.getElementById('predict-btn');
+    // ── Slider sync ────────────────────────────────────────────
+    function syncSlider(el, valId) {
+        document.getElementById(valId).textContent = el.value;
+        const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+        el.style.setProperty('--pct', pct + '%');
+    }
+    // Init all sliders on load
+    document.querySelectorAll('input[type="range"]').forEach(el => syncSlider(el, el.id.replace(/^[a-z_]+/, '')));
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        predictBtn.disabled = true;
-        predictBtn.innerHTML = '<span class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;display:inline-block;vertical-align:middle;"></span> Analysing...';
+    // ── Predict ────────────────────────────────────────────────
+    const btn = document.getElementById('predict-btn');
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;margin:0;display:inline-block;vertical-align:middle;"></span> Analysing...';
 
         const payload = {
-            attendance: document.getElementById('attendance').value,
-            study_hours: document.getElementById('study_hours').value,
-            assignment_score: document.getElementById('assignment_score').value,
-            previous_gpa: document.getElementById('previous_gpa').value,
+            attendance: parseFloat(document.getElementById('attendance').value),
+            study_hours: parseFloat(document.getElementById('study_hours').value),
+            assignment_score: parseFloat(document.getElementById('assignment_score').value),
+            previous_gpa: parseFloat(document.getElementById('previous_gpa').value),
             participation_level: document.getElementById('participation_level').value,
-            internet_usage: document.getElementById('internet_usage').value,
-            sleep_hours: document.getElementById('sleep_hours').value,
-            family_support: document.getElementById('family_support').value,
+            internet_usage: parseFloat(document.getElementById('internet_usage').value),
+            sleep_hours: parseFloat(document.getElementById('sleep_hours').value),
+            family_support: parseInt(document.getElementById('family_support').value),
             extra_curricular: document.getElementById('extra_curricular').value,
         };
 
@@ -217,43 +168,74 @@
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-
-            if (data.error) {
-                alert('Error: ' + data.error);
-            } else {
-                showResults(data);
-            }
-        } catch (err) {
-            alert('Network error. Is the server running?');
+            if (data.error) { alert('Error: ' + data.error); return; }
+            showResults(data, payload);
+        } catch (e) {
+            alert('Server error — is Flask running?');
         } finally {
-            predictBtn.disabled = false;
-            predictBtn.innerHTML = '<i class="fa-solid fa-brain"></i> Analyse My Profile';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-brain"></i> Run Analysis';
         }
     });
 
-    function showResults(data) {
-        document.getElementById('res-score').textContent = data.exam_score;
+    function showResults(data, payload) {
+        // Score cards
+        const pfColor = data.pass_fail === 'Pass' ? 'rc-green' : 'rc-red';
+        const riskColor = { 'High Risk': 'rc-red', 'Medium Risk': 'rc-yellow', 'Low Risk': 'rc-green' }[data.risk_cluster] || 'rc-cyan';
+        document.getElementById('score-cards').innerHTML = `
+    <div class="result-card rc-cyan"><div class="rc-label">Exam Score</div><div class="rc-value">${data.exam_score}</div><div style="font-size:.72rem;color:var(--muted);margin-top:.3rem">out of 100</div></div>
+    <div class="result-card ${pfColor}"><div class="rc-label">Pass / Fail</div><div class="rc-value">${data.pass_fail}</div></div>
+    <div class="result-card rc-purple"><div class="rc-label">Performance</div><div class="rc-value" style="font-size:1.1rem;padding-top:.4rem">${data.performance}</div></div>
+    <div class="result-card ${riskColor}"><div class="rc-label">Risk Cluster</div><div class="rc-value" style="font-size:1rem;padding-top:.4rem">${data.risk_cluster}</div></div>
+  `;
 
-        const pf = data.pass_fail;
-        document.getElementById('res-passfail').textContent = pf;
-        document.getElementById('res-passfail-card').className = 'result-card glass-card ' + (pf === 'Pass' ? 'success' : 'danger');
+        // Advisory
+        document.getElementById('advisory-list').innerHTML =
+            data.advisory.map(t => `<li class="advisory-item">${t}</li>`).join('');
 
-        document.getElementById('res-performance').textContent = data.performance;
-        const riskColorMap = { 'High Risk': 'danger', 'Medium Risk': 'warning', 'Low Risk': 'success' };
-        document.getElementById('res-risk').textContent = data.risk_cluster;
-        document.getElementById('res-risk-card').className = 'result-card glass-card ' + (riskColorMap[data.risk_cluster] || '');
+        // Radar chart
+        const ctx = document.getElementById('radar-chart').getContext('2d');
+        if (window._radarChart) window._radarChart.destroy();
+        window._radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Attendance', 'Study Hrs', 'Assignment', 'GPA', 'Sleep Hrs'],
+                datasets: [{
+                    data: [
+                        (payload.attendance / 100) * 100,
+                        (payload.study_hours / 12) * 100,
+                        payload.assignment_score,
+                        (payload.previous_gpa / 10) * 100,
+                        ((payload.sleep_hours - 3) / 7) * 100
+                    ],
+                    backgroundColor: 'rgba(0,245,255,0.1)',
+                    borderColor: 'rgba(0,245,255,0.6)',
+                    pointBackgroundColor: '#00F5FF',
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        min: 0, max: 100,
+                        grid: { color: 'rgba(255,255,255,0.06)' },
+                        pointLabels: { color: '#6B7280', font: { size: 10 } },
+                        ticks: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
 
-        const list = document.getElementById('advisory-list');
-        list.innerHTML = data.advisory.map(tip => `<li>${tip}</li>`).join('');
-
-        document.getElementById('predict-form-card').classList.add('hidden');
-        resultsSection.classList.remove('hidden');
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('form-panel').classList.add('hidden');
+        document.getElementById('results-panel').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function resetForm() {
-        resultsSection.classList.add('hidden');
-        document.getElementById('predict-form-card').classList.remove('hidden');
+    function resetPrediction() {
+        document.getElementById('results-panel').classList.add('hidden');
+        document.getElementById('form-panel').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>

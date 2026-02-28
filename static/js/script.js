@@ -1,113 +1,101 @@
-// --- CUSTOM CURSOR & PARTICLE TRAIL ---
-const cursor = document.getElementById('cursor');
+// ═══════════════════════════════════════════
+// EduInsight — Global JS
+// Cursor, Particles, Navbar, AOS, Nav active
+// ═══════════════════════════════════════════
 
-// Disable native cursor globally, but restore it where cursor element fails
-document.body.style.cursor = 'none';
+// ── Custom Cursor ──────────────────────────
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
 
-let mouseX = 0, mouseY = 0;
-let customCursorX = 0, customCursorY = 0;
-
-// Cursor tracking
-document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-
-    if (cursor) {
-        cursor.style.left = `${mouseX}px`;
-        cursor.style.top = `${mouseY}px`;
-    }
-
-    createParticle(mouseX, mouseY);
+document.addEventListener('mousemove', e => {
+    if (dot) { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; }
+    if (ring) { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }
 });
 
-// Magnetic Hover Effects on Buttons and Cards
-const magneticElements = document.querySelectorAll('.btn-primary, .btn-outline, .magnetic');
-
-magneticElements.forEach(el => {
-    el.addEventListener('mouseenter', () => {
-        if (cursor) cursor.classList.add('hover-magnetic');
-    });
-    el.addEventListener('mouseleave', () => {
-        if (cursor) cursor.classList.remove('hover-magnetic');
-    });
-
-    // Magnetic pull calculation for premium feel
-    el.addEventListener('mousemove', (e) => {
-        const rect = el.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-
-        // Gentle magnetic pull (max 10px translate)
-        const pullX = x * 0.1;
-        const pullY = y * 0.1;
-
-        el.style.transform = `translate(${pullX}px, ${pullY}px) scale(1.02)`;
-    });
-
-    el.addEventListener('mouseleave', () => {
-        el.style.transform = ''; // Reset transform
-    });
+document.querySelectorAll('a,button,input,select,.glass').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring && ring.classList.add('ring-grow'); });
+    el.addEventListener('mouseleave', () => { ring && ring.classList.remove('ring-grow'); });
 });
 
-// Particle Trail Logic
-function createParticle(x, y) {
-    if (Math.random() > 0.4) return; // Limit particle generation rate
+// ── Particle Canvas ────────────────────────
+(function () {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
 
-    const particle = document.createElement('div');
-    particle.className = 'particle';
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
 
-    // Randomize color between primary blue and purple
-    const isBlue = Math.random() > 0.5;
-    const color = isBlue ? 'rgba(79, 140, 255, 0.6)' : 'rgba(166, 108, 255, 0.6)';
-
-    const size = Math.random() * 8 + 4; // 4px to 12px
-
-    particle.style.background = color;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particle.style.left = `${x}px`;
-    particle.style.top = `${y}px`;
-    particle.style.boxShadow = `0 0 ${size}px ${color}`;
-
-    document.body.appendChild(particle);
-
-    // Animate and remove
-    const destX = x + (Math.random() - 0.5) * 60;
-    const destY = y + (Math.random() - 0.5) * 60 - 40; // Float upwards
-
-    particle.animate([
-        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-        { transform: `translate(${destX - x}px, ${destY - y}px) scale(0)`, opacity: 0 }
-    ], {
-        duration: Math.random() * 1000 + 500,
-        easing: 'cubic-bezier(0, .9, .57, 1)'
-    }).onfinish = () => {
-        particle.remove();
-    };
-}
-
-
-// --- NAVBAR SCROLL EFFECT ---
-window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
-    if (navbar) {
-        if (window.scrollY > 50) {
-            navbar.style.background = 'rgba(255, 255, 255, 0.9)';
-            navbar.style.boxShadow = '0 4px 30px rgba(79, 140, 255, 0.1)';
-        } else {
-            navbar.style.background = 'rgba(245, 249, 255, 0.8)';
-            navbar.style.boxShadow = 'none';
+    class Particle {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * W; this.y = Math.random() * H;
+            this.r = Math.random() * 1.5 + 0.3;
+            this.vx = (Math.random() - .5) * .3; this.vy = (Math.random() - .5) * .3;
+            this.a = Math.random() * .4 + .1;
+            this.c = Math.random() > .6 ? '0,245,255' : '124,58,237';
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+        }
+        draw() {
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.c},${this.a})`; ctx.fill();
         }
     }
+
+    for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+    function connect() {
+        for (let i = 0; i < particles.length; i++)
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(0,245,255,${.08 * (1 - d / 120)})`;
+                    ctx.lineWidth = .4; ctx.stroke();
+                }
+            }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => { p.update(); p.draw(); });
+        connect();
+        requestAnimationFrame(animate);
+    }
+    animate();
+})();
+
+// ── Navbar scroll ──────────────────────────
+window.addEventListener('scroll', () => {
+    document.getElementById('navbar')?.classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// Highlight Active Nav Link
-const currentLocation = location.pathname;
-const navLinks = document.querySelectorAll('.nav-link');
-navLinks.forEach(link => {
-    if (link.getAttribute('href') === currentLocation && currentLocation !== '/') {
-        link.classList.add('active');
-    } else if (currentLocation === '/' && link.getAttribute('href') === '/') {
-        link.classList.add('active');
+// ── Active nav link ────────────────────────
+const path = location.pathname;
+document.querySelectorAll('.nav-link').forEach(a => {
+    if (a.getAttribute('href') === path || (path === '/' && a.getAttribute('href') === '/')) {
+        a.classList.add('active');
     }
+});
+
+// ── AOS Init ──────────────────────────────
+if (typeof AOS !== 'undefined') AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic', offset: 60 });
+
+// ── GSAP + ScrollTrigger ───────────────────
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+}
+
+// ── Slider fill init (call on pages with sliders) ──
+document.querySelectorAll('input[type="range"]').forEach(el => {
+    const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+    el.style.setProperty('--pct', pct + '%');
 });

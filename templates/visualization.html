@@ -1,192 +1,347 @@
 {% extends 'base.html' %}
-
-{% block head %}
-<style>
-    .viz-page {
-        padding: 4rem 1.5rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .charts-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-
-    .chart-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-muted);
-    }
-
-    @media(max-width:768px) {
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="viz-page">
-    <div class="section-header">
-        <p class="section-eyebrow">Data Insights</p>
-        <h1 class="section-title">Visualisation Dashboard</h1>
-        <p class="section-sub">Explore student clusters, performance distributions, and risk patterns across 1200+
-            records.</p>
-    </div>
+<section class="section">
+    <div class="section-inner">
 
-    <div id="loading" class="text-center">
-        <div class="spinner"></div>
-        <p style="color:var(--text-muted);">Loading dataset...</p>
-    </div>
-
-    <div id="charts-container" class="hidden">
-        <div class="charts-grid">
-
-            <!-- Scatter: Risk Clusters -->
-            <div class="chart-wrap">
-                <p class="chart-title"><i class="fa-solid fa-circle-nodes" style="color:var(--primary-start)"></i>
-                    Academic Risk Clusters</p>
-                <div id="scatter-chart" style="height:320px;"></div>
-            </div>
-
-            <!-- Bar: Performance Distribution -->
-            <div class="chart-wrap">
-                <p class="chart-title"><i class="fa-solid fa-chart-bar" style="color:var(--primary-end)"></i>
-                    Performance Category Distribution</p>
-                <canvas id="bar-chart" height="320"></canvas>
-            </div>
-
-            <!-- Pie: Pass / Fail -->
-            <div class="chart-wrap">
-                <p class="chart-title"><i class="fa-solid fa-chart-pie" style="color:var(--success)"></i> Pass vs Fail
-                    Ratio</p>
-                <canvas id="pie-chart" height="320"></canvas>
-            </div>
-
-            <!-- Scatter: Study Hours vs Score (Plotly) -->
-            <div class="chart-wrap">
-                <p class="chart-title"><i class="fa-solid fa-graduation-cap" style="color:var(--warning)"></i> Risk
-                    Groups: Attendance vs Study Hours</p>
-                <div id="cluster-map" style="height:320px;"></div>
-            </div>
-
+        <div class="text-center mb-4" data-aos="fade-up">
+            <div class="eyebrow">Data Dashboard</div>
+            <h1 class="section-title">Visualisation <span class="accent">Centre</span></h1>
+            <p style="color:var(--muted);max-width:560px;margin:0 auto">
+                Explore live cluster scatter plots, performance distributions, and risk breakdowns — or upload your own
+                CSV for batch analysis.
+            </p>
         </div>
-    </div>
 
-    <div id="error-msg" class="hidden text-center mt-4" style="color:var(--danger);"></div>
-</div>
+        <!-- Tabs -->
+        <div
+            style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid var(--border-w);padding-bottom:.25rem">
+            <button class="tab-btn active" data-tab="dataset" onclick="switchTab('dataset',this)">Dataset
+                Charts</button>
+            <button class="tab-btn" data-tab="upload" onclick="switchTab('upload',this)">CSV Upload</button>
+        </div>
+
+        <!-- ── Dataset Charts Tab ── -->
+        <div id="tab-dataset">
+            <div id="chart-loading" class="text-center">
+                <div class="spinner"></div>
+                <p class="loading-text mt-2">Loading dataset visualisations...</p>
+            </div>
+
+            <div id="chart-content" class="hidden">
+                <div class="grid-2 mb-3">
+                    <!-- Scatter: Risk Clusters -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Risk Clusters — Attendance vs Study Hours</div>
+                        <div id="scatter-plot" style="height:320px"></div>
+                    </div>
+                    <!-- Bar: Performance -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Performance Category Distribution</div>
+                        <canvas id="bar-chart" style="max-height:320px"></canvas>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <!-- Doughnut: Pass/Fail -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Pass vs Fail Ratio</div>
+                        <div style="max-width:300px;margin:0 auto"><canvas id="pie-chart"
+                                style="max-height:280px"></canvas></div>
+                    </div>
+                    <!-- Scatter 2 -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">K-Means Cluster Map</div>
+                        <div id="cluster-map" style="height:280px"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chart-error" class="hidden text-center mt-4"
+                style="color:#F87171;font-family:var(--font-mono);font-size:.85rem"></div>
+        </div>
+
+        <!-- ── CSV Upload Tab ── -->
+        <div id="tab-upload" class="hidden">
+
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()">
+                <div class="drop-icon"><i class="fa-solid fa-file-csv"></i></div>
+                <div class="drop-title">Drop your CSV file here</div>
+                <div class="drop-sub">or click to browse · Must include the 9 feature columns</div>
+                <input type="file" id="csv-input" accept=".csv" style="display:none"
+                    onchange="handleCSV(this.files[0])">
+            </div>
+
+            <!-- Column info -->
+            <div class="glass mt-3" style="padding:1.2rem">
+                <div
+                    style="font-family:var(--font-mono);font-size:.7rem;color:var(--cyan);margin-bottom:.75rem;letter-spacing:1px">
+                    // REQUIRED CSV COLUMNS</div>
+                <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+                    {% for col in
+                    ['attendance','study_hours','assignment_score','previous_gpa','participation_level','internet_usage','sleep_hours','family_support','extra_curricular']
+                    %}
+                    <span class="badge badge-cyan">{{ col }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Upload results -->
+            <div id="upload-loading" class="hidden text-center mt-4">
+                <div class="spinner"></div>
+                <p class="loading-text mt-2">Running predictions on all rows...</p>
+            </div>
+
+            <div id="upload-results" class="hidden mt-4">
+                <div id="upload-summary" class="glass" style="padding:1.2rem;margin-bottom:1.5rem"></div>
+                <div class="glass" style="padding:1.5rem;margin-bottom:1.5rem">
+                    <div class="chart-title">Risk Distribution (Uploaded Data)</div>
+                    <canvas id="upload-pie" style="max-height:240px;max-width:300px;margin:0 auto"></canvas>
+                </div>
+                <div class="glass" style="padding:1rem;overflow-x:auto">
+                    <div
+                        style="font-family:var(--font-mono);font-size:.7rem;color:var(--cyan);margin-bottom:.75rem;letter-spacing:1px">
+                        // BATCH RESULTS</div>
+                    <table class="data-table" id="results-table"></table>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-cyan" onclick="downloadCSV()"><i class="fa-solid fa-download"></i>
+                        Export Results</button>
+                </div>
+            </div>
+
+            <div id="upload-error" class="hidden mt-3"
+                style="color:#F87171;font-family:var(--font-mono);font-size:.85rem;text-align:center"></div>
+        </div>
+
+    </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
+<style>
+    .tab-btn {
+        padding: .5rem 1.2rem;
+        border-radius: 8px 8px 0 0;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: .78rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color .2s;
+    }
+
+    .tab-btn.active {
+        color: var(--cyan);
+        border-bottom: 2px solid var(--cyan);
+    }
+</style>
 <script>
-    const clusterColors = {
-        'High Risk': '#ff4d6d',
-        'Medium Risk': '#ffb830',
-        'Low Risk': '#00e096',
+    // ── Tab switching ───────────────────────────────────────────
+    function switchTab(name, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-dataset').classList.toggle('hidden', name !== 'dataset');
+        document.getElementById('tab-upload').classList.toggle('hidden', name !== 'upload');
+    }
+
+    // ── Chart helpers ───────────────────────────────────────────
+    const COLORS = { 'High Risk': '#F87171', 'Medium Risk': '#FCD34D', 'Low Risk': '#10B981' };
+    const PLOTLY_LAYOUT = {
+        paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+        font: { color: '#6B7280', size: 11, family: 'JetBrains Mono' },
+        margin: { l: 40, r: 10, t: 10, b: 40 },
+        xaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.08)' },
+        yaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.08)' },
+        legend: { bgcolor: 'transparent' },
+    };
+    const CHART_DEFAULTS = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#6B7280', font: { family: 'JetBrains Mono', size: 10 } } } },
+        scales: {}
     };
 
-    async function loadViz() {
+    // ── Load dataset viz ────────────────────────────────────────
+    async function loadDatasetCharts() {
         try {
             const res = await fetch('/api/visualize');
             const data = await res.json();
-
             if (data.error) throw new Error(data.error);
 
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('charts-container').classList.remove('hidden');
+            document.getElementById('chart-loading').classList.add('hidden');
+            document.getElementById('chart-content').classList.remove('hidden');
 
-            // ── Plotly Scatter: Risk Clusters ──────────────────
+            // Scatter: groups by risk label
             const groups = {};
-            data.clusters.labels.forEach((label, i) => {
-                if (!groups[label]) groups[label] = { x: [], y: [] };
-                groups[label].x.push(data.clusters.study_hours[i]);
-                groups[label].y.push(data.clusters.attendance[i]);
+            data.clusters.labels.forEach((l, i) => {
+                if (!groups[l]) groups[l] = { x: [], y: [] };
+                groups[l].x.push(data.clusters.study_hours[i]);
+                groups[l].y.push(data.clusters.attendance[i]);
             });
+            Plotly.newPlot('scatter-plot',
+                Object.entries(groups).map(([l, pts]) => ({
+                    type: 'scatter', mode: 'markers', name: l, x: pts.x, y: pts.y,
+                    marker: { color: COLORS[l] || '#00F5FF', size: 4, opacity: .7 }
+                })),
+                {
+                    ...PLOTLY_LAYOUT,
+                    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Study Hrs/day' },
+                    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Attendance (%)' },
+                },
+                { responsive: true, displayModeBar: false }
+            );
 
-            const scatterTraces = Object.entries(groups).map(([label, pts]) => ({
-                type: 'scatter', mode: 'markers',
-                name: label, x: pts.x, y: pts.y,
-                marker: { color: clusterColors[label] || '#888', size: 5, opacity: 0.7 }
-            }));
+            // Clone for cluster map
+            Plotly.newPlot('cluster-map',
+                Object.entries(groups).map(([l, pts]) => ({
+                    type: 'scatter', mode: 'markers', name: l, x: pts.x, y: pts.y,
+                    marker: { color: COLORS[l] || '#00F5FF', size: 5, opacity: .6 }, showlegend: false
+                })),
+                {
+                    ...PLOTLY_LAYOUT,
+                    xaxis: { ...PLOTLY_LAYOUT.xaxis, title: 'Study Hrs' },
+                    yaxis: { ...PLOTLY_LAYOUT.yaxis, title: 'Attendance' },
+                },
+                { responsive: true, displayModeBar: false }
+            );
 
-            Plotly.newPlot('scatter-chart', scatterTraces, {
-                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-                font: { color: '#c8d7ff', size: 11 },
-                margin: { l: 40, r: 10, t: 10, b: 40 },
-                xaxis: { title: 'Study Hours/day', gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)' },
-                yaxis: { title: 'Attendance (%)', gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)' },
-                legend: { bgcolor: 'transparent' },
-                showlegend: true
-            }, { responsive: true, displayModeBar: false });
-
-            // ── Plotly: Cluster Map same data different view ─
-            Plotly.newPlot('cluster-map', scatterTraces, {
-                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-                font: { color: '#c8d7ff', size: 11 },
-                margin: { l: 40, r: 10, t: 10, b: 40 },
-                xaxis: { title: 'Study Hours/day', gridcolor: 'rgba(255,255,255,0.06)' },
-                yaxis: { title: 'Attendance (%)', gridcolor: 'rgba(255,255,255,0.06)' },
-                legend: { bgcolor: 'transparent' }, showlegend: false
-            }, { responsive: true, displayModeBar: false });
-
-            // ── Chart.js Bar: Performance ──────────────────────
-            const perfLabels = Object.keys(data.performance);
-            const perfVals = Object.values(data.performance);
+            // Bar: Performance
+            const pLabels = Object.keys(data.performance);
+            const pValues = Object.values(data.performance);
             new Chart(document.getElementById('bar-chart'), {
                 type: 'bar',
                 data: {
-                    labels: perfLabels,
+                    labels: pLabels,
                     datasets: [{
-                        label: 'Students',
-                        data: perfVals,
-                        backgroundColor: ['rgba(79,140,255,0.7)', 'rgba(166,108,255,0.7)', 'rgba(0,224,150,0.7)', 'rgba(255,184,48,0.7)'],
-                        borderRadius: 8, borderSkipped: false,
+                        data: pValues, backgroundColor: ['rgba(0,245,255,.7)', 'rgba(124,58,237,.7)', 'rgba(244,114,182,.7)', 'rgba(16,185,129,.7)'],
+                        borderRadius: 6, borderSkipped: false
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    ...CHART_DEFAULTS, maintainAspectRatio: true,
                     scales: {
-                        x: { ticks: { color: '#c8d7ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { ticks: { color: '#c8d7ff' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
+                        x: { ticks: { color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    },
+                    plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false } }
                 }
             });
 
-            // ── Chart.js Pie: Pass / Fail ──────────────────────
+            // Doughnut: Pass/Fail
             const pfLabels = Object.keys(data.pass_fail);
-            const pfVals = Object.values(data.pass_fail);
+            const pfValues = Object.values(data.pass_fail);
             new Chart(document.getElementById('pie-chart'), {
                 type: 'doughnut',
                 data: {
                     labels: pfLabels,
                     datasets: [{
-                        data: pfVals,
-                        backgroundColor: ['rgba(0,224,150,0.8)', 'rgba(255,77,109,0.8)'],
-                        borderColor: ['#00e096', '#ff4d6d'], borderWidth: 2,
+                        data: pfValues,
+                        backgroundColor: ['rgba(16,185,129,.8)', 'rgba(248,113,113,.8)'],
+                        borderColor: ['#10B981', '#F87171'], borderWidth: 1.5
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#c8d7ff' } }
-                    }
+                    ...CHART_DEFAULTS, maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#6B7280', font: { family: 'JetBrains Mono', size: 10 } } } }
                 }
             });
 
-        } catch (err) {
-            document.getElementById('loading').classList.add('hidden');
-            const errEl = document.getElementById('error-msg');
-            errEl.classList.remove('hidden');
-            errEl.textContent = 'Could not load visualisation data: ' + err.message;
+        } catch (e) {
+            document.getElementById('chart-loading').classList.add('hidden');
+            const err = document.getElementById('chart-error');
+            err.classList.remove('hidden');
+            err.textContent = '// ERROR: ' + e.message;
+        }
+    }
+    loadDatasetCharts();
+
+    // ── Drag & Drop ─────────────────────────────────────────────
+    const dz = document.getElementById('drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+        e.preventDefault(); dz.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) handleCSV(e.dataTransfer.files[0]);
+    });
+
+    // ── CSV Upload ──────────────────────────────────────────────
+    let uploadedResults = [];
+
+    async function handleCSV(file) {
+        if (!file || !file.name.endsWith('.csv')) { alert('Please upload a .csv file'); return; }
+        dz.innerHTML = `<div class="drop-icon"><i class="fa-solid fa-file-csv"></i></div><div class="drop-title">${file.name}</div><div class="drop-sub">Processing...</div>`;
+
+        document.getElementById('upload-loading').classList.remove('hidden');
+        document.getElementById('upload-results').classList.add('hidden');
+        document.getElementById('upload-error').classList.add('hidden');
+
+        const fd = new FormData();
+        fd.append('file', file);
+
+        try {
+            const res = await fetch('/upload', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            uploadedResults = data.results;
+            showUploadResults(data);
+        } catch (e) {
+            document.getElementById('upload-error').classList.remove('hidden');
+            document.getElementById('upload-error').textContent = '// ERROR: ' + e.message;
+        } finally {
+            document.getElementById('upload-loading').classList.add('hidden');
         }
     }
 
-    loadViz();
+    function showUploadResults(data) {
+        // Summary
+        const risks = {}, pf = {};
+        data.results.forEach(r => {
+            risks[r.risk_cluster] = (risks[r.risk_cluster] || 0) + 1;
+            pf[r.pass_fail] = (pf[r.pass_fail] || 0) + 1;
+        });
+        document.getElementById('upload-summary').innerHTML = `
+    <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:center">
+      <div><div style="font-family:var(--font-head);font-size:2rem;color:var(--cyan)">${data.count}</div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase">Students Analysed</div></div>
+      ${Object.entries(risks).map(([k, v]) => `<div><div style="font-family:var(--font-head);font-size:2rem;color:${COLORS[k] || '#fff'}">${v}</div><div style="font-size:.72rem;color:var(--muted)">${k}</div></div>`).join('')}
+      ${Object.entries(pf).map(([k, v]) => `<span class="badge ${k === 'Pass' ? 'badge-green' : 'badge-red'}" style="font-size:.9rem;padding:.4rem .9rem">${k}: ${v}</span>`).join('')}
+    </div>
+  `;
+
+        // Pie chart for upload
+        if (window._uploadPie) window._uploadPie.destroy();
+        window._uploadPie = new Chart(document.getElementById('upload-pie'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(risks),
+                datasets: [{
+                    data: Object.values(risks),
+                    backgroundColor: Object.keys(risks).map(k => COLORS[k] || '#00F5FF'),
+                    borderWidth: 1.5
+                }]
+            },
+            options: { maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: '#6B7280' } } } }
+        });
+
+        // Table
+        const cols = ['exam_score', 'pass_fail', 'performance', 'risk_cluster'];
+        const thead = `<tr>${cols.map(c => `<th>${c.replace('_', ' ')}</th>`).join('')}</tr>`;
+        const tbody = data.results.slice(0, 50).map(r =>
+            `<tr>${cols.map(c => `<td>${r[c]}</td>`).join('')}</tr>`
+        ).join('');
+        document.getElementById('results-table').innerHTML = `<thead>${thead}</thead><tbody>${tbody}</tbody>`;
+
+        document.getElementById('upload-results').classList.remove('hidden');
+    }
+
+    function downloadCSV() {
+        if (!uploadedResults.length) return;
+        const keys = ['exam_score', 'pass_fail', 'performance', 'risk_cluster'];
+        const rows = [keys.join(','), ...uploadedResults.map(r => keys.map(k => r[k]).join(','))];
+        const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'eduinsight_results.csv'; a.click();
+    }
 </script>
 {% endblock %}

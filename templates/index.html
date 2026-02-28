@@ -1,238 +1,280 @@
 {% extends 'base.html' %}
-
-{% block head %}
-<style>
-    /* Hero Section with Video Background */
-    .hero {
-        position: relative;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 2rem;
-        overflow: hidden;
-        margin-top: -90px;
-        /* pull up behind navbar */
-    }
-
-    .hero-video {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        transform: translateX(-50%) translateY(-50%);
-        z-index: -2;
-        object-fit: cover;
-    }
-
-    .hero-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(10, 25, 47, 0.5);
-        /* Dark translucent overlay for contrast */
-        z-index: -1;
-    }
-
-    .hero-tagline {
-        font-size: 5rem;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 1.5rem;
-        color: #fff;
-        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        opacity: 0;
-        transform: translateY(40px);
-    }
-
-    .hero-tagline .text-gradient {
-        background: linear-gradient(90deg, #00D4FF 0%, #A66CFF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .hero-subtagline {
-        font-size: 1.5rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 3rem;
-        font-weight: 500;
-        opacity: 0;
-        transform: translateY(30px);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        max-width: 800px;
-    }
-
-    .hero-actions {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        opacity: 0;
-        transform: translateY(30px);
-        z-index: 2;
-    }
-
-    .features-section {
-        padding: 8rem 2rem;
-        position: relative;
-        background: transparent;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 3rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .feature-card {
-        text-align: center;
-        opacity: 0;
-        transform: translateY(40px);
-    }
-
-    .feature-icon {
-        font-size: 3rem;
-        color: var(--primary-start);
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .feature-title {
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-    }
-
-    .feature-desc {
-        color: var(--text-muted);
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<section class="hero">
-    <!-- Make sure to place a video in static/images/hero-bg.mp4 -->
-    <video autoplay loop muted playsinline class="hero-video">
-        <source src="{{ url_for('static', filename='images/hero-bg.mp4') }}" type="video/mp4">
-        <!-- Fallback if missing -->
-    </video>
-    <div class="hero-overlay"></div>
 
-    <h1 class="hero-tagline">AI <span class="text-gradient">Academic</span> Dashboard</h1>
-    <h2 class="hero-subtagline">Smart Student Performance Prediction & Academic Advisory System</h2>
+<!-- ═══════════ HERO ═══════════ -->
+<section style="min-height:100vh;display:flex;align-items:center;padding:0 5%;position:relative;overflow:hidden">
 
-    <div class="hero-actions">
-        <a href="/predict" class="btn-primary magnetic">
-            <i class="fa-solid fa-chart-line"></i> Predict Now
-        </a>
-        <a href="/visualize" class="btn-outline magnetic"
-            style="color: #fff; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-            Get Advisory
-        </a>
-    </div>
-</section>
+    <!-- Animated gradient orbs -->
+    <div style="position:absolute;top:-20%;right:-10%;width:600px;height:600px;border-radius:50%;
+       background:radial-gradient(circle,rgba(0,245,255,0.06),transparent 70%);
+       animation:orbFloat 10s ease-in-out infinite;pointer-events:none"></div>
+    <div style="position:absolute;bottom:-20%;left:-10%;width:500px;height:500px;border-radius:50%;
+       background:radial-gradient(circle,rgba(124,58,237,0.07),transparent 70%);
+       animation:orbFloat 14s ease-in-out infinite reverse;pointer-events:none"></div>
 
-<section class="features-section" id="features">
-    <div class="features-grid">
-        <div class="glass-card magnetic feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
-            <h3 class="feature-title">Lightning Fast Models</h3>
-            <p class="feature-desc">Integrated Random Forest & XGBoost predictive backend for instant academic
-                forecasts.</p>
-        </div>
-        <div class="glass-card magnetic feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-chart-pie"></i></div>
-            <h3 class="feature-title">Advanced Gap Analysis</h3>
-            <p class="feature-desc">Interactive Plotly charts identifying the exact gaps between current habits and
-                performance goals.</p>
-        </div>
-        <div class="glass-card magnetic feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
-            <h3 class="feature-title">AI Personalized Advisory</h3>
-            <p class="feature-desc">Dynamic feedback based on your cluster grouping to maximize your potential output.
+    <div
+        style="max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center">
+
+        <!-- Left: content -->
+        <div>
+            <div class="eyebrow" style="animation:fadeUp .6s ease both .2s;opacity:0">AI Academic Intelligence Platform
+            </div>
+
+            <h1 style="font-family:var(--font-head);font-size:clamp(2.8rem,5vw,4.5rem);font-weight:900;
+                 text-transform:uppercase;line-height:1;letter-spacing:2px;
+                 animation:fadeUp .7s ease both .4s;opacity:0">
+                <span style="display:block">Predict.</span>
+                <span style="display:block;background:linear-gradient(90deg,var(--cyan),var(--purple));
+               -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+               filter:drop-shadow(0 0 30px rgba(0,245,255,0.5))">Analyze.</span>
+                <span style="display:block">Improve.</span>
+            </h1>
+
+            <p style="color:var(--muted);font-size:1.05rem;max-width:480px;margin:1.5rem 0 2.5rem;
+                animation:fadeUp .7s ease both .6s;opacity:0">
+                EduInsight uses 4 machine learning models to predict student academic performance,
+                classify risk groups, and generate personalised improvement advisory — instantly.
             </p>
+
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .7s ease both .8s;opacity:0">
+                <a href="/predict" class="btn btn-cyan"><i class="fa-solid fa-bolt"></i> Start Analysis</a>
+                <a href="/visualize" class="btn btn-outline-cyan"><i class="fa-solid fa-chart-scatter"></i> View
+                    Dashboard</a>
+            </div>
+
+            <!-- Stats -->
+            <div style="display:flex;gap:3rem;margin-top:3rem;animation:fadeUp .7s ease both 1s;opacity:0">
+                <div>
+                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--cyan);
+                      text-shadow:0 0 20px rgba(0,245,255,0.5)">1200+</div>
+                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Records
+                    </div>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--purple);
+                      text-shadow:0 0 20px rgba(124,58,237,0.5)">4</div>
+                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">ML
+                        Models</div>
+                </div>
+                <div>
+                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--cyan);
+                      text-shadow:0 0 20px rgba(0,245,255,0.5)">94%</div>
+                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">
+                        Accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: floating terminal cards -->
+        <div style="position:relative;height:500px;animation:fadeUp .9s ease both .5s;opacity:0">
+
+            <!-- Main card -->
+            <div class="glass" style="position:absolute;top:30px;right:0;width:300px;padding:1.5rem;
+           border-color:rgba(0,245,255,0.2);animation:floatCard 7s ease-in-out infinite">
+                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--cyan);margin-bottom:1rem;
+                    letter-spacing:1px">▶ PREDICTION OUTPUT</div>
+                <div style="font-family:var(--font-head);font-size:3rem;font-weight:900;color:var(--cyan);
+                    text-shadow:0 0 30px rgba(0,245,255,0.6);line-height:1">87.4</div>
+                <div style="font-size:.72rem;color:var(--muted);margin:.4rem 0 1rem">Final Exam Score</div>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                    <span class="badge badge-green">✓ PASS</span>
+                    <span class="badge badge-cyan">HIGH PERF</span>
+                    <span class="badge badge-yellow">MED RISK</span>
+                </div>
+                <div style="margin-top:1rem">
+                    <div class="prog-row">
+                        <div class="prog-info"><span class="lbl">Attendance</span><span class="num">78%</span></div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:78%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-row">
+                        <div class="prog-info"><span class="lbl">Study hrs</span><span class="num">6.5h</span></div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:54%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advisory card -->
+            <div class="glass" style="position:absolute;bottom:60px;left:0;width:240px;padding:1.2rem;
+           border-color:rgba(124,58,237,0.2);animation:floatCard2 9s ease-in-out infinite">
+                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--purple);margin-bottom:.75rem">▶
+                    ADVISORY</div>
+                <div style="font-size:.8rem;color:var(--muted);line-height:1.6">📈 Study +1.5h/day<br>🌙 Sleep
+                    7–8h/night<br>✅ On track to pass</div>
+            </div>
+
+            <!-- Risk badge -->
+            <div class="glass" style="position:absolute;top:200px;left:20px;padding:1rem 1.4rem;
+           border-color:rgba(0,245,255,0.15);animation:floatCard 11s ease-in-out infinite reverse">
+                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-bottom:.3rem">RISK
+                    CLUSTER</div>
+                <div
+                    style="font-family:var(--font-head);font-size:.95rem;color:#10B981;text-shadow:0 0 15px rgba(16,185,129,.5)">
+                    LOW RISK</div>
+            </div>
+
         </div>
     </div>
 </section>
 
-<!-- About Section -->
-<section class="about-section" id="about">
-    <div class="section-header">
-        <p class="section-eyebrow">Our Team</p>
-        <h2 class="section-title">About AcaVision</h2>
-        <p class="section-sub">
-            AcaVision is an AI-powered student performance prediction system built by a 3-person team
-            as part of a machine learning project — combining real ML research with clean, interactive UI.
-        </p>
-    </div>
+<!-- ═══════════ FEATURES ═══════════ -->
+<section class="section" id="features">
+    <div class="section-inner">
+        <div data-aos="fade-up">
+            <div class="eyebrow">Core Capabilities</div>
+            <h2 class="section-title"><span class="accent">4 Models.</span><br>One Platform.</h2>
+        </div>
 
-    <div class="team-grid">
-        <div class="glass-card team-card magnetic">
-            <div class="team-avatar">🤖</div>
-            <div class="team-name">ML & Data Engineer</div>
-            <div class="team-role">Synthetic data · Model training · Preprocessing pipeline</div>
-        </div>
-        <div class="glass-card team-card magnetic">
-            <div class="team-avatar">⚙️</div>
-            <div class="team-name">Backend Engineer</div>
-            <div class="team-role">Flask API · Service layer · Prediction & Advisory engine</div>
-        </div>
-        <div class="glass-card team-card magnetic">
-            <div class="team-avatar">🎨</div>
-            <div class="team-name">Frontend Engineer</div>
-            <div class="team-role">UI Design · Templates · Animations · Chart dashboards</div>
+        <div class="grid-4 mt-4">
+            {% set features = [
+            ('fa-chart-line','cyan','Score Prediction','Linear Regression','Predicts final exam score from 9 behavioural
+            features'),
+            ('fa-sitemap','purple','Pass / Fail','Decision Tree','Classifies pass/fail with high interpretability'),
+            ('fa-circle-nodes','cyan','Performance','KNN Classifier','Categorises Low / Medium / High performance'),
+            ('fa-shield-halved','purple','Risk Clusters','K-Means','Groups students into High / Medium / Low risk'),
+            ] %}
+            {% for icon,col,title,model,desc in features %}
+            <div class="glass" style="padding:1.8rem" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}">
+                <div
+                    style="width:48px;height:48px;border-radius:10px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;
+             background:rgba({{ '0,245,255' if col=='cyan' else '124,58,237' }},.08);border:1px solid rgba({{ '0,245,255' if col=='cyan' else '124,58,237' }},.2)">
+                    <i class="fa-solid {{ icon }}" style="color:var(--{{ col }})"></i>
+                </div>
+                <div
+                    style="font-family:var(--font-head);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">
+                    {{ title }}</div>
+                <div style="font-size:.72rem;color:var(--{{ col }});font-family:var(--font-mono);margin-bottom:.8rem">{{
+                    model }}</div>
+                <p style="font-size:.82rem;color:var(--muted)">{{ desc }}</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
+</section>
 
-    <!-- Tech Stack Pills -->
-    <div class="text-center mt-4" style="margin-top:3rem;">
-        <p class="section-eyebrow mb-2">Built With</p>
-        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;margin-top:0.75rem;">
-            {% for tech in ['Python', 'Flask', 'Scikit-learn', 'Pandas', 'NumPy', 'Chart.js', 'Plotly', 'GSAP',
-            'HTML/CSS/JS'] %}
-            <span style="background:rgba(79,140,255,0.12);border:1px solid rgba(79,140,255,0.3);
-                   padding:0.35rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;
-                   color:var(--primary-start);">{{ tech }}</span>
+<div class="glow-divider"></div>
+
+<!-- ═══════════ HOW IT WORKS ═══════════ -->
+<section class="section">
+    <div class="section-inner">
+        <div class="text-center mb-4" data-aos="fade-up">
+            <div class="eyebrow">Process</div>
+            <h2 class="section-title">Four Steps to Insight</h2>
+        </div>
+
+        <div class="grid-4">
+            {% for num,title,desc,icon in [
+            ('01','Input Profile','Enter 9 academic & behavioural features via interactive sliders','fa-sliders'),
+            ('02','ML Inference','4 models run in parallel — results in under 200ms','fa-microchip'),
+            ('03','Results','Score, Pass/Fail, Performance category, Risk cluster','fa-chart-bar'),
+            ('04','Advisory','Personalized feature-level recommendations to improve','fa-lightbulb'),
+            ] %}
+            <div data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}" style="text-align:center">
+                <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:900;
+             background:linear-gradient(135deg,var(--cyan),var(--purple));
+             -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+             margin-bottom:.5rem">{{ num }}</div>
+                <i class="fa-solid {{ icon }}" style="color:var(--cyan);font-size:1.3rem;margin-bottom:.8rem;display:block;
+           filter:drop-shadow(0 0 8px var(--cyan))"></i>
+                <div
+                    style="font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">
+                    {{ title }}</div>
+                <p style="font-size:.8rem;color:var(--muted)">{{ desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ ABOUT / TEAM ═══════════ -->
+<section class="section" id="about" style="background:rgba(0,245,255,0.02);border-top:1px solid var(--border)">
+    <div class="section-inner text-center">
+        <div data-aos="fade-up">
+            <div class="eyebrow">The Team</div>
+            <h2 class="section-title" style="font-size:2rem">
+                <span style="font-family:var(--font-head);letter-spacing:4px;background:linear-gradient(90deg,var(--cyan),var(--purple));
+              -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">TechTonics</span>
+            </h2>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-top:3rem">
+            {% for emoji,name,role,col in [
+            ('🤖','ML Engineer','Data · Models · Preprocessing','cyan'),
+            ('⚙️','Backend Engineer','Flask · API · Services','purple'),
+            ('🎨','Frontend Engineer','UI · Animations · Charts','cyan'),
+            ] %}
+            <div class="glass" style="padding:2rem 1.5rem;width:200px;text-align:center" data-aos="zoom-in"
+                data-aos-delay="{{ loop.index0 * 100 }}">
+                <div style="font-size:2rem;margin-bottom:.8rem">{{ emoji }}</div>
+                <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">{{ name }}</div>
+                <div style="font-size:.75rem;color:var(--muted)">{{ role }}</div>
+                <span class="badge badge-{{ col }} mt-2" style="margin-top:.75rem">Dev {{ loop.index }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Tech stack -->
+        <div style="display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:3rem" data-aos="fade-up">
+            {% for t in ['Python','Flask','Scikit-learn','Pandas','NumPy','Chart.js','Plotly','GSAP','AOS'] %}
+            <span style="padding:.3rem .9rem;border-radius:20px;font-size:.75rem;font-weight:600;
+            background:rgba(0,245,255,0.06);color:var(--cyan);border:1px solid rgba(0,245,255,0.15)">{{ t }}</span>
             {% endfor %}
         </div>
     </div>
 </section>
 
 {% endblock %}
-
-
 {% block scripts %}
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const tl = gsap.timeline();
+<style>
+    @keyframes orbFloat {
 
-        tl.to(".hero-tagline", { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.3 })
-            .to(".hero-subtagline", { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6")
-            .to(".hero-actions", { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6");
+        0%,
+        100% {
+            transform: translate(0, 0)
+        }
 
-        gsap.utils.toArray('.feature-card').forEach((card, i) => {
-            gsap.to(card, {
-                scrollTrigger: {
-                    trigger: ".features-section",
-                    start: "top 80%",
-                    toggleActions: "play none none reverse"
-                },
-                y: 0,
-                opacity: 1,
-                duration: 0.8,
-                ease: "power3.out",
-                delay: i * 0.15
-            });
-        });
-    });
-</script>
+        50% {
+            transform: translate(30px, -30px)
+        }
+    }
+
+    @keyframes floatCard {
+
+        0%,
+        100% {
+            transform: translateY(0)
+        }
+
+        50% {
+            transform: translateY(-16px)
+        }
+    }
+
+    @keyframes floatCard2 {
+
+        0%,
+        100% {
+            transform: translateY(-8px) rotate(-1deg)
+        }
+
+        50% {
+            transform: translateY(10px) rotate(1deg)
+        }
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px)
+        }
+
+        to {
+            opacity: 1;
+            transform: none
+        }
+    }
+</style>
 {% endblock %}

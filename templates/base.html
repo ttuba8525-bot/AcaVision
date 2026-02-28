@@ -2,63 +2,57 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Student Performance & Advisory System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduInsight – Smart Student Performance Prediction</title>
+    <meta name="description" content="AI-Driven Academic Intelligence Platform" />
 
-    <!-- Google Fonts -->
+    <!-- Fonts loaded in CSS -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- GSAP for animations -->
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-    <!-- Plotly & Chart.js -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     {% block head %}{% endblock %}
 </head>
 
 <body>
-    <!-- Custom Particle Cursor -->
-    <div id="cursor"></div>
 
-    <!-- Ambient Animated Background -->
-    <div class="ambient-bg">
-        <div class="ambient-blob blob-1"></div>
-        <div class="ambient-blob blob-2"></div>
-    </div>
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
 
-    <!-- Glassmorphism Navbar -->
+    <!-- Particle Canvas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Navbar -->
     <nav class="navbar" id="navbar">
-        <a href="/" class="navbar-brand">
-            <i class="fa-solid fa-brain"></i>
-            AcaVision AI
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-dot"></span>
+            EduInsight
         </a>
-        <ul class="navbar-nav">
+        <ul class="nav-links">
             <li><a href="/" class="nav-link">Home</a></li>
-            <li><a href="/predict" class="nav-link">Look At My Score</a></li>
-            <li><a href="/visualize" class="nav-link">Visualization</a></li>
+            <li><a href="/predict" class="nav-link">Predict</a></li>
+            <li><a href="/visualize" class="nav-link">Visualise</a></li>
             <li><a href="/metrics" class="nav-link">Metrics</a></li>
-            <li><a href="/#about" class="nav-link">About Team</a></li>
+            <li><a href="/#about" class="nav-link">About</a></li>
         </ul>
+        <a href="/predict" class="nav-cta">Analyse Now</a>
     </nav>
 
-    <!-- Main Content Wrapped for Fade -->
-    <main class="page-fade pt-main">
+    <!-- Main Content -->
+    <main class="page-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Custom JS -->
+    <!-- JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
