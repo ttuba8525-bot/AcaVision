@@ -19,113 +19,60 @@
 
 
 
-    <div
-        style="max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:2">
+    <div style="max-width:900px;margin:0 auto;width:100%;text-align:center;position:relative;z-index:2">
 
-        <!-- Left: content -->
-        <div>
-            <div class="eyebrow" style="animation:fadeUp .6s ease both .2s;opacity:0">AI Academic Intelligence Platform
-            </div>
+        <!-- Eyebrow -->
+        <div class="eyebrow" style="justify-content:center;animation:fadeUp .6s ease both .2s;opacity:0">
+            AI Academic Intelligence Platform
+        </div>
 
-            <h1 style="font-family:var(--font-head);font-size:clamp(2.8rem,5vw,4.5rem);font-weight:900;
-                 text-transform:uppercase;line-height:1;letter-spacing:2px;
-                 animation:fadeUp .7s ease both .4s;opacity:0">
-                <span style="display:block">Predict.</span>
-                <span style="display:block;background:linear-gradient(90deg,var(--cyan),var(--purple));
-               -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-               filter:drop-shadow(0 0 30px rgba(0,245,255,0.5))">Analyze.</span>
-                <span style="display:block">Improve.</span>
-            </h1>
+        <!-- Tagline: Predict. Analyse. Improve. -->
+        <h1 style="font-family:var(--font-head);font-size:clamp(3rem,6vw,5.5rem);font-weight:900;
+                   text-transform:uppercase;line-height:1.05;letter-spacing:3px;
+                   animation:fadeUp .7s ease both .4s;opacity:0;margin-bottom:1.5rem">
+            <span style="display:block;color:var(--text)">Predict.</span>
+            <span style="display:block;background:linear-gradient(90deg,var(--blue),var(--purple));
+                 -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Analyse.</span>
+            <span style="display:block;color:var(--text)">Improve.</span>
+        </h1>
 
-            <p style="color:var(--muted);font-size:1.05rem;max-width:480px;margin:1.5rem 0 2.5rem;
-                animation:fadeUp .7s ease both .6s;opacity:0">
-                EduInsight uses 4 machine learning models to predict student academic performance,
-                classify risk groups, and generate personalised improvement advisory — instantly.
-            </p>
+        <!-- Subheading -->
+        <p style="color:var(--muted);font-size:1.1rem;max-width:560px;margin:0 auto 2.5rem;
+                  animation:fadeUp .7s ease both .6s;opacity:0;line-height:1.7">
+            EduInsight uses 4 ML models to predict student academic performance,
+            classify risk groups, and deliver personalised improvement advisory — instantly.
+        </p>
 
-            <div style="display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .7s ease both .8s;opacity:0">
-                <a href="/predict" class="btn btn-cyan"><i class="fa-solid fa-bolt"></i> Start Analysis</a>
-                <a href="/visualize" class="btn btn-outline-cyan"><i class="fa-solid fa-chart-scatter"></i> View
-                    Dashboard</a>
-            </div>
+        <!-- CTAs -->
+        <div
+            style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s ease both .8s;opacity:0">
+            <a href="/predict" class="btn btn-cyan"><i class="fa-solid fa-bolt"></i> Start Analysis</a>
+            <a href="/visualize" class="btn btn-outline-cyan"><i class="fa-solid fa-chart-scatter"></i> View
+                Dashboard</a>
+        </div>
 
-            <!-- Stats -->
-            <div style="display:flex;gap:3rem;margin-top:3rem;animation:fadeUp .7s ease both 1s;opacity:0">
-                <div>
-                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--cyan);
-                      text-shadow:0 0 20px rgba(0,245,255,0.5)">1200+</div>
-                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Records
-                    </div>
+        <!-- Stats row -->
+        <div
+            style="display:flex;gap:4rem;margin-top:3.5rem;justify-content:center;animation:fadeUp .7s ease both 1s;opacity:0">
+            <div>
+                <div style="font-family:var(--font-head);font-size:2rem;font-weight:900;color:var(--blue)">1200+</div>
+                <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Records
                 </div>
-                <div>
-                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--purple);
-                      text-shadow:0 0 20px rgba(124,58,237,0.5)">4</div>
-                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">ML
-                        Models</div>
+            </div>
+            <div>
+                <div style="font-family:var(--font-head);font-size:2rem;font-weight:900;color:var(--purple)">4</div>
+                <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">ML Models
                 </div>
-                <div>
-                    <div style="font-family:var(--font-head);font-size:1.8rem;font-weight:900;color:var(--cyan);
-                      text-shadow:0 0 20px rgba(0,245,255,0.5)">94%</div>
-                    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">
-                        Accuracy</div>
+            </div>
+            <div>
+                <div style="font-family:var(--font-head);font-size:2rem;font-weight:900;color:var(--blue)">94%</div>
+                <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Accuracy
                 </div>
             </div>
         </div>
 
-        <!-- Right: floating terminal cards -->
-        <div style="position:relative;height:500px;animation:fadeUp .9s ease both .5s;opacity:0">
-
-            <!-- Main card -->
-            <div class="glass" style="position:absolute;top:30px;right:0;width:300px;padding:1.5rem;
-           border-color:rgba(0,245,255,0.2);animation:floatCard 7s ease-in-out infinite">
-                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--cyan);margin-bottom:1rem;
-                    letter-spacing:1px">▶ PREDICTION OUTPUT</div>
-                <div style="font-family:var(--font-head);font-size:3rem;font-weight:900;color:var(--cyan);
-                    text-shadow:0 0 30px rgba(0,245,255,0.6);line-height:1">87.4</div>
-                <div style="font-size:.72rem;color:var(--muted);margin:.4rem 0 1rem">Final Exam Score</div>
-                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-                    <span class="badge badge-green">✓ PASS</span>
-                    <span class="badge badge-cyan">HIGH PERF</span>
-                    <span class="badge badge-yellow">MED RISK</span>
-                </div>
-                <div style="margin-top:1rem">
-                    <div class="prog-row">
-                        <div class="prog-info"><span class="lbl">Attendance</span><span class="num">78%</span></div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="width:78%"></div>
-                        </div>
-                    </div>
-                    <div class="prog-row">
-                        <div class="prog-info"><span class="lbl">Study hrs</span><span class="num">6.5h</span></div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="width:54%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Advisory card -->
-            <div class="glass" style="position:absolute;bottom:60px;left:0;width:240px;padding:1.2rem;
-           border-color:rgba(124,58,237,0.2);animation:floatCard2 9s ease-in-out infinite">
-                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--purple);margin-bottom:.75rem">▶
-                    ADVISORY</div>
-                <div style="font-size:.8rem;color:var(--muted);line-height:1.6">📈 Study +1.5h/day<br>🌙 Sleep
-                    7–8h/night<br>✅ On track to pass</div>
-            </div>
-
-            <!-- Risk badge -->
-            <div class="glass" style="position:absolute;top:200px;left:20px;padding:1rem 1.4rem;
-           border-color:rgba(0,245,255,0.15);animation:floatCard 11s ease-in-out infinite reverse">
-                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-bottom:.3rem">RISK
-                    CLUSTER</div>
-                <div
-                    style="font-family:var(--font-head);font-size:.95rem;color:#10B981;text-shadow:0 0 15px rgba(16,185,129,.5)">
-                    LOW RISK</div>
-            </div>
-
-        </div>
-    </div>
 </section>
+
 
 <!-- ═══════════ FEATURES ═══════════ -->
 <section class="section" id="features">
