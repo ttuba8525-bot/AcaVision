@@ -27,6 +27,14 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/landing")
+def landing():
+    """EduInsight standalone landing page."""
+    from flask import send_from_directory
+    import os
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), "eduinsight_landing.html")
+
+
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
     """
@@ -119,11 +127,12 @@ def api_visualize():
 
         cluster_data = clustering_service.get_cluster_data_for_visualization()
 
-        performance_counts = df["performance_category"].value_counts().to_dict() \
-            if "performance_category" in df.columns else {}
+        # Use actual CSV column names (Dev 1's headers with spaces)
+        performance_counts = df["Performance Category"].value_counts().to_dict() \
+            if "Performance Category" in df.columns else {}
 
-        pass_fail_counts = df["pass_fail"].value_counts().to_dict() \
-            if "pass_fail" in df.columns else {}
+        pass_fail_counts = df["Pass/Fail"].value_counts().to_dict() \
+            if "Pass/Fail" in df.columns else {}
 
         return jsonify({
             "clusters":    cluster_data,
