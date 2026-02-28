@@ -5,10 +5,20 @@
 <section id="hero-section"
     style="min-height:100vh;display:flex;align-items:center;padding:0 5%;position:relative;overflow:hidden;background:linear-gradient(135deg,#FEFCE8 0%,#FFF3CD 50%,#FDE8D8 100%)">
 
-    <!-- ── Cyber Circuit Animation Canvas ── -->
-    <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0"></canvas>
+    <!-- ── Video (bottom layer) ── -->
+    <video autoplay loop muted playsinline
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35">
+        <source src="{{ url_for('static', filename='images/hero-bg.mp4') }}" type="video/mp4">
+    </video>
 
-    <div style="max-width:900px;margin:0 auto;width:100%;text-align:center;position:relative;z-index:2">
+    <!-- ── Warm tint overlay ── -->
+    <div style="position:absolute;inset:0;z-index:1;
+      background:linear-gradient(135deg,rgba(254,252,232,0.55) 0%,rgba(255,243,205,0.42) 100%)"></div>
+
+    <!-- ── Cyber Circuit Animation Canvas (on top of video) ── -->
+    <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:2"></canvas>
+
+    <div style="max-width:900px;margin:0 auto;width:100%;text-align:center;position:relative;z-index:3">
 
         <!-- Eyebrow -->
         <div class="eyebrow" style="justify-content:center;animation:fadeUp .6s ease both .2s;opacity:0">
