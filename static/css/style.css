@@ -10,9 +10,9 @@
   --bg: #FEFCE8;
   --bg-2: #FDF3C0;
   --bg-card: rgba(255, 255, 255, 0.92);
-  --blue: #E36A6A;
-  --purple: #C84B4B;
-  --text: #3D1A1A;
+  --blue: #0C7752;
+  --purple: #065F46;
+  --text: #0C2D2A;
   --muted: #6B7280;
   --border: rgba(227, 106, 106, 0.15);
   --border-w: rgba(0, 0, 0, 0.07);
@@ -411,7 +411,7 @@ input[type="range"] {
   width: 100%;
   height: 4px;
   outline: none;
-  background: linear-gradient(90deg, var(--blue) var(--pct, 50%), #FFD6D6 var(--pct, 50%));
+  background: linear-gradient(90deg, var(--blue) var(--pct, 50%), #A7F3D0 var(--pct, 50%));
   border-radius: 2px;
   cursor: pointer;
 }
@@ -749,7 +749,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .prog-track {
   height: 4px;
-  background: #FFD6D6;
+  background: #A7F3D0;
   border-radius: 2px;
   overflow: hidden;
 }
