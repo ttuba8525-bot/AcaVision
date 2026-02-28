@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    /* Hero Section with Video Background */
+    .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+        overflow: hidden;
+        margin-top: -90px;
+        /* pull up behind navbar */
+    }
+
+    .hero-video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: -2;
+        object-fit: cover;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 25, 47, 0.5);
+        /* Dark translucent overlay for contrast */
+        z-index: -1;
+    }
+
+    .hero-tagline {
+        font-size: 5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        color: #fff;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    .hero-tagline .text-gradient {
+        background: linear-gradient(90deg, #00D4FF 0%, #A66CFF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtagline {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 3rem;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(30px);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        max-width: 800px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(30px);
+        z-index: 2;
+    }
+
+    .features-section {
+        padding: 8rem 2rem;
+        position: relative;
+        background: transparent;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        text-align: center;
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        color: var(--primary-start);
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .feature-title {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-desc {
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <!-- Make sure to place a video in static/images/hero-bg.mp4 -->
+    <video autoplay loop muted playsinline class="hero-video">
+        <source src="{{ url_for('static', filename='images/hero-bg.mp4') }}" type="video/mp4">
+        <!-- Fallback if missing -->
+    </video>
+    <div class="hero-overlay"></div>
+
+    <h1 class="hero-tagline">AI <span class="text-gradient">Academic</span> Dashboard</h1>
+    <h2 class="hero-subtagline">Smart Student Performance Prediction & Academic Advisory System</h2>
+
+    <div class="hero-actions">
+        <a href="/predict" class="btn-primary magnetic">
+            <i class="fa-solid fa-chart-line"></i> Predict Now
+        </a>
+        <a href="/visualize" class="btn-outline magnetic"
+            style="color: #fff; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            Get Advisory
+        </a>
+    </div>
+</section>
+
+<section class="features-section" id="features">
+    <div class="features-grid">
+        <div class="glass-card magnetic feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h3 class="feature-title">Lightning Fast Models</h3>
+            <p class="feature-desc">Integrated Random Forest & XGBoost predictive backend for instant academic
+                forecasts.</p>
+        </div>
+        <div class="glass-card magnetic feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-chart-pie"></i></div>
+            <h3 class="feature-title">Advanced Gap Analysis</h3>
+            <p class="feature-desc">Interactive Plotly charts identifying the exact gaps between current habits and
+                performance goals.</p>
+        </div>
+        <div class="glass-card magnetic feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+            <h3 class="feature-title">AI Personalized Advisory</h3>
+            <p class="feature-desc">Dynamic feedback based on your cluster grouping to maximize your potential output.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tl = gsap.timeline();
+
+        tl.to(".hero-tagline", { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.3 })
+            .to(".hero-subtagline", { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6")
+            .to(".hero-actions", { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6");
+
+        gsap.utils.toArray('.feature-card').forEach((card, i) => {
+            gsap.to(card, {
+                scrollTrigger: {
+                    trigger: ".features-section",
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power3.out",
+                delay: i * 0.15
+            });
+        });
+    });
+</script>
+{% endblock %}

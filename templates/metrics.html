@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .metrics-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .kpi-card {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .kpi-value {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 1rem 0;
+    }
+
+    .kpi-label {
+        font-size: 1rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    @media(min-width: 900px) {
+        .charts-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .metric-box {
+        padding: 1.5rem;
+        height: 450px;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<div class="metrics-container">
+    <h1 class="page-title text-center"
+        style="margin-bottom: 3rem; font-size: 2.8rem; font-weight: 800; color: var(--text-dark);">
+        Model <span class="text-gradient">Performance</span>
+    </h1>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="glass-card magnetic kpi-card">
+            <div class="kpi-label">Accuracy</div>
+            <div class="kpi-value text-cyan counter" data-target="96">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Validation Set</div>
+        </div>
+        <div class="glass-card magnetic kpi-card">
+            <div class="kpi-label">Precision</div>
+            <div class="kpi-value counter" style="color: var(--primary-start);" data-target="94">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Macro Avg</div>
+        </div>
+        <div class="glass-card magnetic kpi-card">
+            <div class="kpi-label">Recall</div>
+            <div class="kpi-value counter" style="color: var(--primary-end);" data-target="95">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Macro Avg</div>
+        </div>
+        <div class="glass-card magnetic kpi-card">
+            <div class="kpi-label">F1 Score</div>
+            <div class="kpi-value counter" style="color: #00D4FF;" data-target="95">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Harmonic Mean</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="glass-card magnetic metric-box">
+            <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-table-cells text-cyan"></i>
+                Confusion Matrix</h3>
+            <div id="cmChart" style="flex-grow: 1;"></div>
+        </div>
+        <div class="glass-card magnetic metric-box">
+            <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-layer-group"
+                    style="color: var(--primary-start);"></i> Feature Importance</h3>
+            <div id="fiChart" style="flex-grow: 1;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Top KPI Counters
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            let target = +counter.getAttribute('data-target');
+            let obj = { val: 0 };
+            gsap.to(obj, {
+                val: target,
+                duration: 2,
+                ease: "power2.out",
+                onUpdate: () => {
+                    counter.innerText = Math.floor(obj.val) + "%";
+                }
+            });
+        });
+
+        const commonLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#1E293B', family: 'Inter' },
+            margin: { t: 20, b: 40, l: 80, r: 20 }
+        };
+
+        // Confusion Matrix (Heatmap)
+        const cmData = [{
+            z: [[45, 2, 0], [1, 50, 3], [0, 4, 38]],
+            x: ['Danger', 'Improve', 'Safe'],
+            y: ['Danger', 'Improve', 'Safe'],
+            type: 'heatmap',
+            colorscale: [
+                [0, '#F5F9FF'],
+                [0.5, '#4F8CFF'],
+                [1, '#A66CFF']
+            ],
+            showscale: false
+        }];
+        Plotly.newPlot('cmChart', cmData, commonLayout, { responsive: true });
+
+        // Feature Importance (Horizontal Bar)
+        const fiData = [{
+            type: 'bar',
+            x: [0.35, 0.25, 0.15, 0.10, 0.08, 0.07],
+            y: ['Attendance', 'GPA', 'Assignments', 'Study Hrs', 'Participation', 'Family'],
+            orientation: 'h',
+            marker: {
+                color: ['#00D4FF', '#4F8CFF', '#A66CFF', '#A66CFF', 'rgba(166,108,255,0.6)', 'rgba(79,140,255,0.4)'],
+                borderRadius: 4
+            }
+        }];
+        Plotly.newPlot('fiChart', fiData, {
+            ...commonLayout,
+            yaxis: { autorange: 'reversed', tickfont: { color: '#64748B' } },
+            xaxis: { gridcolor: 'rgba(79, 140, 255, 0.1)' }
+        }, { responsive: true });
+
+        // Element Reveals
+        gsap.from(".kpi-card", {
+            y: 40, opacity: 0, duration: 0.6, stagger: 0.1, ease: "power2.out"
+        });
+        gsap.from(".metric-box", {
+            scale: 0.95, opacity: 0, duration: 0.8, stagger: 0.2, ease: "back.out(1.2)", delay: 0.4
+        });
+    });
+</script>
+{% endblock %}

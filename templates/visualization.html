@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .viz-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media(min-width: 900px) {
+        .chart-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .chart-full {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .chart-box {
+        padding: 1.5rem;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .plot-container {
+        flex-grow: 1;
+        width: 100%;
+    }
+</style>
+
+<div class="viz-container">
+    <h1 class="page-title text-center"
+        style="margin-bottom: 3rem; font-size: 2.8rem; font-weight: 800; color: var(--text-dark);">
+        Academic <span class="text-gradient">Analytics</span>
+    </h1>
+
+    <div class="chart-grid">
+        <!-- Line Chart -->
+        <div class="glass-card magnetic chart-box chart-full">
+            <h3 class="chart-title"><i class="fa-solid fa-chart-line text-cyan"></i> Performance Progression</h3>
+            <div id="lineChart" class="plot-container"></div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="glass-card magnetic chart-box">
+            <h3 class="chart-title"><i class="fa-solid fa-chart-bar" style="color: var(--primary-start);"></i> Subject
+                Comparison</h3>
+            <div id="barChart" class="plot-container"></div>
+        </div>
+
+        <!-- Radar Chart -->
+        <div class="glass-card magnetic chart-box">
+            <h3 class="chart-title"><i class="fa-solid fa-spider text-cyan"></i> Student Strengths</h3>
+            <div id="radarChart" class="plot-container"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const commonLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#1E293B', family: 'Inter, sans-serif' },
+            margin: { t: 20, b: 40, l: 40, r: 20 },
+            hovermode: 'closest'
+        };
+
+        const axisStyle = {
+            gridcolor: 'rgba(79, 140, 255, 0.1)',
+            zerolinecolor: 'rgba(79, 140, 255, 0.2)',
+            tickfont: { color: '#64748B' }
+        };
+
+        // 1. Line Chart (Performance Prediction)
+        const lineTrace = {
+            x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+            y: [65, 68, 74, 72, 80, 85],
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: { color: '#4F8CFF', width: 4, shape: 'spline' },
+            marker: { size: 10, color: '#A66CFF', line: { color: '#fff', width: 2 } },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(79, 140, 255, 0.1)'
+        };
+        Plotly.newPlot('lineChart', [lineTrace], {
+            ...commonLayout,
+            xaxis: axisStyle,
+            yaxis: { ...axisStyle, range: [50, 100] }
+        }, { responsive: true });
+
+        // 2. Bar Chart (Subject Comparison)
+        const barTrace1 = {
+            x: ['Math', 'Science', 'English', 'History', 'Art'],
+            y: [85, 90, 78, 88, 95],
+            name: 'Current Score',
+            type: 'bar',
+            marker: { color: '#00D4FF', borderRadius: 4 }
+        };
+        const barTrace2 = {
+            x: ['Math', 'Science', 'English', 'History', 'Art'],
+            y: [90, 85, 85, 80, 90],
+            name: 'Class Average',
+            type: 'bar',
+            marker: { color: 'rgba(166, 108, 255, 0.4)' }
+        };
+        Plotly.newPlot('barChart', [barTrace1, barTrace2], {
+            ...commonLayout,
+            barmode: 'group',
+            xaxis: axisStyle,
+            yaxis: axisStyle,
+            legend: { orientation: 'h', y: 1.1 }
+        }, { responsive: true });
+
+        // 3. Radar Chart (Student Strengths)
+        const radarData = [{
+            type: 'scatterpolar',
+            r: [8.5, 9.0, 7.5, 8.0, 9.5, 8.5],
+            theta: ['Logic', 'Creativity', 'Memory', 'Focus', 'Teamwork', 'Logic'],
+            fill: 'toself',
+            fillcolor: 'rgba(79, 140, 255, 0.3)',
+            line: { color: '#4F8CFF', width: 2 },
+            marker: { color: '#A66CFF', size: 8 }
+        }];
+        const radarLayout = {
+            ...commonLayout,
+            polar: {
+                radialaxis: {
+                    visible: true,
+                    range: [0, 10],
+                    gridcolor: 'rgba(79, 140, 255, 0.2)',
+                    linecolor: 'rgba(79, 140, 255, 0.2)'
+                },
+                angularaxis: {
+                    tickfont: { color: '#1E293B', size: 12 },
+                    gridcolor: 'rgba(79, 140, 255, 0.2)'
+                },
+                bgcolor: 'rgba(255, 255, 255, 0.5)'
+            }
+        };
+        Plotly.newPlot('radarChart', radarData, radarLayout, { responsive: true });
+
+        // GSAP Entrance Animations
+        gsap.from(".chart-box", {
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "back.out(1.2)"
+        });
+    });
+</script>
+{% endblock %}
