@@ -7,8 +7,8 @@
 
 /* ── Tokens ─────────────────────────────────────────────────── */
 :root {
-  --bg: #FFFBF1;
-  --bg-2: #FFF2D0;
+  --bg:        #FEFCE8;
+  --bg-2:      #FDF3C0;
   --bg-card: rgba(255, 255, 255, 0.92);
   --blue: #E36A6A;
   --purple: #C84B4B;
@@ -380,7 +380,7 @@ body::before {
 .form-control {
   width: 100%;
   padding: 0.7rem 1rem;
-  background: #fff;
+  background: #FFFDE7;
   border: 1px solid rgba(227,106,106, 0.15);
   border-radius: 8px;
   color: var(--text);
@@ -396,7 +396,7 @@ body::before {
 }
 
 .form-control option {
-  background: #fff;
+  background: #FFFDE7;
   color: var(--text);
 }
 
@@ -444,7 +444,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   padding: 1.4rem;
   border-radius: var(--r);
   text-align: center;
-  background: #FFF9F0;
+  background: #FFF9E0;
   border: 1px solid rgba(227, 106, 106, 0.12);
   box-shadow: 0 2px 12px rgba(227, 106, 106, 0.08);
   transition: all 0.3s;
@@ -644,7 +644,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .metric-val {
   padding: 1rem;
   border-radius: 8px;
-  background: #fff;
+  background: #FFFDE7;
   border: 1px solid rgba(227,106,106, 0.1);
   text-align: center;
   transition: all 0.3s;
@@ -946,3 +946,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
     font-size: 1.6rem;
   }
 }
+
+
+
