@@ -1,172 +1,192 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block head %}
 <style>
-    .viz-container {
+    .viz-page {
+        padding: 4rem 1.5rem;
         max-width: 1200px;
         margin: 0 auto;
-        padding: 2rem;
     }
 
-    .chart-grid {
+    .charts-grid {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    @media(min-width: 900px) {
-        .chart-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .chart-full {
-            grid-column: 1 / -1;
-        }
-    }
-
-    .chart-box {
-        padding: 1.5rem;
-        height: 400px;
-        display: flex;
-        flex-direction: column;
+        margin-top: 3rem;
     }
 
     .chart-title {
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1rem;
+        font-weight: 700;
         margin-bottom: 1rem;
-        color: var(--text-dark);
+        color: var(--text-muted);
     }
 
-    .plot-container {
-        flex-grow: 1;
-        width: 100%;
+    @media(max-width:768px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
+{% endblock %}
 
-<div class="viz-container">
-    <h1 class="page-title text-center"
-        style="margin-bottom: 3rem; font-size: 2.8rem; font-weight: 800; color: var(--text-dark);">
-        Academic <span class="text-gradient">Analytics</span>
-    </h1>
+{% block content %}
+<div class="viz-page">
+    <div class="section-header">
+        <p class="section-eyebrow">Data Insights</p>
+        <h1 class="section-title">Visualisation Dashboard</h1>
+        <p class="section-sub">Explore student clusters, performance distributions, and risk patterns across 1200+
+            records.</p>
+    </div>
 
-    <div class="chart-grid">
-        <!-- Line Chart -->
-        <div class="glass-card magnetic chart-box chart-full">
-            <h3 class="chart-title"><i class="fa-solid fa-chart-line text-cyan"></i> Performance Progression</h3>
-            <div id="lineChart" class="plot-container"></div>
-        </div>
+    <div id="loading" class="text-center">
+        <div class="spinner"></div>
+        <p style="color:var(--text-muted);">Loading dataset...</p>
+    </div>
 
-        <!-- Bar Chart -->
-        <div class="glass-card magnetic chart-box">
-            <h3 class="chart-title"><i class="fa-solid fa-chart-bar" style="color: var(--primary-start);"></i> Subject
-                Comparison</h3>
-            <div id="barChart" class="plot-container"></div>
-        </div>
+    <div id="charts-container" class="hidden">
+        <div class="charts-grid">
 
-        <!-- Radar Chart -->
-        <div class="glass-card magnetic chart-box">
-            <h3 class="chart-title"><i class="fa-solid fa-spider text-cyan"></i> Student Strengths</h3>
-            <div id="radarChart" class="plot-container"></div>
+            <!-- Scatter: Risk Clusters -->
+            <div class="chart-wrap">
+                <p class="chart-title"><i class="fa-solid fa-circle-nodes" style="color:var(--primary-start)"></i>
+                    Academic Risk Clusters</p>
+                <div id="scatter-chart" style="height:320px;"></div>
+            </div>
+
+            <!-- Bar: Performance Distribution -->
+            <div class="chart-wrap">
+                <p class="chart-title"><i class="fa-solid fa-chart-bar" style="color:var(--primary-end)"></i>
+                    Performance Category Distribution</p>
+                <canvas id="bar-chart" height="320"></canvas>
+            </div>
+
+            <!-- Pie: Pass / Fail -->
+            <div class="chart-wrap">
+                <p class="chart-title"><i class="fa-solid fa-chart-pie" style="color:var(--success)"></i> Pass vs Fail
+                    Ratio</p>
+                <canvas id="pie-chart" height="320"></canvas>
+            </div>
+
+            <!-- Scatter: Study Hours vs Score (Plotly) -->
+            <div class="chart-wrap">
+                <p class="chart-title"><i class="fa-solid fa-graduation-cap" style="color:var(--warning)"></i> Risk
+                    Groups: Attendance vs Study Hours</p>
+                <div id="cluster-map" style="height:320px;"></div>
+            </div>
+
         </div>
     </div>
+
+    <div id="error-msg" class="hidden text-center mt-4" style="color:var(--danger);"></div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const commonLayout = {
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: '#1E293B', family: 'Inter, sans-serif' },
-            margin: { t: 20, b: 40, l: 40, r: 20 },
-            hovermode: 'closest'
-        };
+    const clusterColors = {
+        'High Risk': '#ff4d6d',
+        'Medium Risk': '#ffb830',
+        'Low Risk': '#00e096',
+    };
 
-        const axisStyle = {
-            gridcolor: 'rgba(79, 140, 255, 0.1)',
-            zerolinecolor: 'rgba(79, 140, 255, 0.2)',
-            tickfont: { color: '#64748B' }
-        };
+    async function loadViz() {
+        try {
+            const res = await fetch('/api/visualize');
+            const data = await res.json();
 
-        // 1. Line Chart (Performance Prediction)
-        const lineTrace = {
-            x: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
-            y: [65, 68, 74, 72, 80, 85],
-            type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: '#4F8CFF', width: 4, shape: 'spline' },
-            marker: { size: 10, color: '#A66CFF', line: { color: '#fff', width: 2 } },
-            fill: 'tozeroy',
-            fillcolor: 'rgba(79, 140, 255, 0.1)'
-        };
-        Plotly.newPlot('lineChart', [lineTrace], {
-            ...commonLayout,
-            xaxis: axisStyle,
-            yaxis: { ...axisStyle, range: [50, 100] }
-        }, { responsive: true });
+            if (data.error) throw new Error(data.error);
 
-        // 2. Bar Chart (Subject Comparison)
-        const barTrace1 = {
-            x: ['Math', 'Science', 'English', 'History', 'Art'],
-            y: [85, 90, 78, 88, 95],
-            name: 'Current Score',
-            type: 'bar',
-            marker: { color: '#00D4FF', borderRadius: 4 }
-        };
-        const barTrace2 = {
-            x: ['Math', 'Science', 'English', 'History', 'Art'],
-            y: [90, 85, 85, 80, 90],
-            name: 'Class Average',
-            type: 'bar',
-            marker: { color: 'rgba(166, 108, 255, 0.4)' }
-        };
-        Plotly.newPlot('barChart', [barTrace1, barTrace2], {
-            ...commonLayout,
-            barmode: 'group',
-            xaxis: axisStyle,
-            yaxis: axisStyle,
-            legend: { orientation: 'h', y: 1.1 }
-        }, { responsive: true });
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('charts-container').classList.remove('hidden');
 
-        // 3. Radar Chart (Student Strengths)
-        const radarData = [{
-            type: 'scatterpolar',
-            r: [8.5, 9.0, 7.5, 8.0, 9.5, 8.5],
-            theta: ['Logic', 'Creativity', 'Memory', 'Focus', 'Teamwork', 'Logic'],
-            fill: 'toself',
-            fillcolor: 'rgba(79, 140, 255, 0.3)',
-            line: { color: '#4F8CFF', width: 2 },
-            marker: { color: '#A66CFF', size: 8 }
-        }];
-        const radarLayout = {
-            ...commonLayout,
-            polar: {
-                radialaxis: {
-                    visible: true,
-                    range: [0, 10],
-                    gridcolor: 'rgba(79, 140, 255, 0.2)',
-                    linecolor: 'rgba(79, 140, 255, 0.2)'
+            // ── Plotly Scatter: Risk Clusters ──────────────────
+            const groups = {};
+            data.clusters.labels.forEach((label, i) => {
+                if (!groups[label]) groups[label] = { x: [], y: [] };
+                groups[label].x.push(data.clusters.study_hours[i]);
+                groups[label].y.push(data.clusters.attendance[i]);
+            });
+
+            const scatterTraces = Object.entries(groups).map(([label, pts]) => ({
+                type: 'scatter', mode: 'markers',
+                name: label, x: pts.x, y: pts.y,
+                marker: { color: clusterColors[label] || '#888', size: 5, opacity: 0.7 }
+            }));
+
+            Plotly.newPlot('scatter-chart', scatterTraces, {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                font: { color: '#c8d7ff', size: 11 },
+                margin: { l: 40, r: 10, t: 10, b: 40 },
+                xaxis: { title: 'Study Hours/day', gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)' },
+                yaxis: { title: 'Attendance (%)', gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)' },
+                legend: { bgcolor: 'transparent' },
+                showlegend: true
+            }, { responsive: true, displayModeBar: false });
+
+            // ── Plotly: Cluster Map same data different view ─
+            Plotly.newPlot('cluster-map', scatterTraces, {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                font: { color: '#c8d7ff', size: 11 },
+                margin: { l: 40, r: 10, t: 10, b: 40 },
+                xaxis: { title: 'Study Hours/day', gridcolor: 'rgba(255,255,255,0.06)' },
+                yaxis: { title: 'Attendance (%)', gridcolor: 'rgba(255,255,255,0.06)' },
+                legend: { bgcolor: 'transparent' }, showlegend: false
+            }, { responsive: true, displayModeBar: false });
+
+            // ── Chart.js Bar: Performance ──────────────────────
+            const perfLabels = Object.keys(data.performance);
+            const perfVals = Object.values(data.performance);
+            new Chart(document.getElementById('bar-chart'), {
+                type: 'bar',
+                data: {
+                    labels: perfLabels,
+                    datasets: [{
+                        label: 'Students',
+                        data: perfVals,
+                        backgroundColor: ['rgba(79,140,255,0.7)', 'rgba(166,108,255,0.7)', 'rgba(0,224,150,0.7)', 'rgba(255,184,48,0.7)'],
+                        borderRadius: 8, borderSkipped: false,
+                    }]
                 },
-                angularaxis: {
-                    tickfont: { color: '#1E293B', size: 12 },
-                    gridcolor: 'rgba(79, 140, 255, 0.2)'
-                },
-                bgcolor: 'rgba(255, 255, 255, 0.5)'
-            }
-        };
-        Plotly.newPlot('radarChart', radarData, radarLayout, { responsive: true });
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#c8d7ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#c8d7ff' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
 
-        // GSAP Entrance Animations
-        gsap.from(".chart-box", {
-            y: 50,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.2,
-            ease: "back.out(1.2)"
-        });
-    });
+            // ── Chart.js Pie: Pass / Fail ──────────────────────
+            const pfLabels = Object.keys(data.pass_fail);
+            const pfVals = Object.values(data.pass_fail);
+            new Chart(document.getElementById('pie-chart'), {
+                type: 'doughnut',
+                data: {
+                    labels: pfLabels,
+                    datasets: [{
+                        data: pfVals,
+                        backgroundColor: ['rgba(0,224,150,0.8)', 'rgba(255,77,109,0.8)'],
+                        borderColor: ['#00e096', '#ff4d6d'], borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#c8d7ff' } }
+                    }
+                }
+            });
+
+        } catch (err) {
+            document.getElementById('loading').classList.add('hidden');
+            const errEl = document.getElementById('error-msg');
+            errEl.classList.remove('hidden');
+            errEl.textContent = 'Could not load visualisation data: ' + err.message;
+        }
+    }
+
+    loadViz();
 </script>
 {% endblock %}

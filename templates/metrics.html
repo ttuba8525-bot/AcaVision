@@ -1,167 +1,125 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block head %}
 <style>
-    .metrics-container {
-        max-width: 1200px;
+    .metrics-page {
+        padding: 4rem 1.5rem;
+        max-width: 1100px;
         margin: 0 auto;
-        padding: 2rem;
     }
 
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.5rem;
+    .model-block {
         margin-bottom: 3rem;
     }
 
-    .kpi-card {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .kpi-value {
-        font-size: 3rem;
-        font-weight: 800;
-        margin: 1rem 0;
-    }
-
-    .kpi-label {
-        font-size: 1rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .charts-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-
-    @media(min-width: 900px) {
-        .charts-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    .metric-box {
-        padding: 1.5rem;
-        height: 450px;
+    .model-block-header {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-glass);
+    }
+
+    .model-badge {
+        padding: 0.3rem 0.9rem;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+        color: white;
+    }
+
+    .metrics-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
     }
 </style>
+{% endblock %}
 
-<div class="metrics-container">
-    <h1 class="page-title text-center"
-        style="margin-bottom: 3rem; font-size: 2.8rem; font-weight: 800; color: var(--text-dark);">
-        Model <span class="text-gradient">Performance</span>
-    </h1>
+{% block content %}
+<div class="metrics-page">
 
-    <!-- KPIs -->
-    <div class="kpi-grid">
-        <div class="glass-card magnetic kpi-card">
-            <div class="kpi-label">Accuracy</div>
-            <div class="kpi-value text-cyan counter" data-target="96">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Validation Set</div>
-        </div>
-        <div class="glass-card magnetic kpi-card">
-            <div class="kpi-label">Precision</div>
-            <div class="kpi-value counter" style="color: var(--primary-start);" data-target="94">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Macro Avg</div>
-        </div>
-        <div class="glass-card magnetic kpi-card">
-            <div class="kpi-label">Recall</div>
-            <div class="kpi-value counter" style="color: var(--primary-end);" data-target="95">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Macro Avg</div>
-        </div>
-        <div class="glass-card magnetic kpi-card">
-            <div class="kpi-label">F1 Score</div>
-            <div class="kpi-value counter" style="color: #00D4FF;" data-target="95">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Harmonic Mean</div>
-        </div>
+    <div class="section-header">
+        <p class="section-eyebrow">Model Evaluation</p>
+        <h1 class="section-title">Performance Metrics</h1>
+        <p class="section-sub">Evaluation scores for all 4 trained models computed on the full synthetic dataset.</p>
     </div>
 
-    <div class="charts-grid">
-        <div class="glass-card magnetic metric-box">
-            <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-table-cells text-cyan"></i>
-                Confusion Matrix</h3>
-            <div id="cmChart" style="flex-grow: 1;"></div>
-        </div>
-        <div class="glass-card magnetic metric-box">
-            <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-layer-group"
-                    style="color: var(--primary-start);"></i> Feature Importance</h3>
-            <div id="fiChart" style="flex-grow: 1;"></div>
-        </div>
+    <div id="loading" class="text-center">
+        <div class="spinner"></div>
+        <p style="color:var(--text-muted);">Evaluating models...</p>
     </div>
+
+    <div id="metrics-container" class="hidden"></div>
+    <div id="error-msg" class="hidden text-center mt-4" style="color:var(--danger);"></div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Top KPI Counters
-        const counters = document.querySelectorAll('.counter');
-        counters.forEach(counter => {
-            let target = +counter.getAttribute('data-target');
-            let obj = { val: 0 };
-            gsap.to(obj, {
-                val: target,
-                duration: 2,
-                ease: "power2.out",
-                onUpdate: () => {
-                    counter.innerText = Math.floor(obj.val) + "%";
-                }
+    const modelIcons = {
+        linear_regression: 'fa-chart-line',
+        decision_tree: 'fa-sitemap',
+        knn: 'fa-circle-nodes',
+        kmeans: 'fa-object-group',
+    };
+
+    const metricLabels = {
+        mae: 'MAE', rmse: 'RMSE', r2: 'R² Score',
+        accuracy: 'Accuracy', f1: 'F1 Score',
+        precision: 'Precision', recall: 'Recall',
+        silhouette_score: 'Silhouette', inertia: 'Inertia', n_clusters: 'Clusters'
+    };
+
+    async function loadMetrics() {
+        try {
+            const res = await fetch('/api/metrics');
+            const data = await res.json();
+
+            if (data.status === 'error') throw new Error(data.message);
+
+            document.getElementById('loading').classList.add('hidden');
+            const container = document.getElementById('metrics-container');
+            container.classList.remove('hidden');
+
+            Object.entries(data.metrics).forEach(([key, model]) => {
+                const metricKeys = Object.keys(model).filter(k => !['name', 'task'].includes(k));
+
+                const cardsHTML = metricKeys.map(mk => `
+        <div class="glass-card metric-card">
+          <div class="m-label">${metricLabels[mk] || mk}</div>
+          <div class="m-value">${typeof model[mk] === 'number' && !Number.isInteger(model[mk])
+                        ? model[mk].toFixed(4) : model[mk]}</div>
+        </div>
+      `).join('');
+
+                const block = document.createElement('div');
+                block.className = 'model-block glass-card';
+                block.innerHTML = `
+        <div class="model-block-header">
+          <i class="fa-solid ${modelIcons[key] || 'fa-robot'}" style="color:var(--primary-start);font-size:1.4rem;"></i>
+          <div>
+            <h2 style="font-size:1.1rem;font-weight:700;">${model.name}</h2>
+            <p style="font-size:0.82rem;color:var(--text-muted);">${model.task}</p>
+          </div>
+          <span class="model-badge" style="margin-left:auto;">${key.replace('_', ' ').toUpperCase()}</span>
+        </div>
+        <div class="metrics-cards">${cardsHTML}</div>
+      `;
+                container.appendChild(block);
             });
-        });
 
-        const commonLayout = {
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: '#1E293B', family: 'Inter' },
-            margin: { t: 20, b: 40, l: 80, r: 20 }
-        };
+        } catch (err) {
+            document.getElementById('loading').classList.add('hidden');
+            const errEl = document.getElementById('error-msg');
+            errEl.classList.remove('hidden');
+            errEl.textContent = 'Could not load metrics: ' + err.message;
+        }
+    }
 
-        // Confusion Matrix (Heatmap)
-        const cmData = [{
-            z: [[45, 2, 0], [1, 50, 3], [0, 4, 38]],
-            x: ['Danger', 'Improve', 'Safe'],
-            y: ['Danger', 'Improve', 'Safe'],
-            type: 'heatmap',
-            colorscale: [
-                [0, '#F5F9FF'],
-                [0.5, '#4F8CFF'],
-                [1, '#A66CFF']
-            ],
-            showscale: false
-        }];
-        Plotly.newPlot('cmChart', cmData, commonLayout, { responsive: true });
-
-        // Feature Importance (Horizontal Bar)
-        const fiData = [{
-            type: 'bar',
-            x: [0.35, 0.25, 0.15, 0.10, 0.08, 0.07],
-            y: ['Attendance', 'GPA', 'Assignments', 'Study Hrs', 'Participation', 'Family'],
-            orientation: 'h',
-            marker: {
-                color: ['#00D4FF', '#4F8CFF', '#A66CFF', '#A66CFF', 'rgba(166,108,255,0.6)', 'rgba(79,140,255,0.4)'],
-                borderRadius: 4
-            }
-        }];
-        Plotly.newPlot('fiChart', fiData, {
-            ...commonLayout,
-            yaxis: { autorange: 'reversed', tickfont: { color: '#64748B' } },
-            xaxis: { gridcolor: 'rgba(79, 140, 255, 0.1)' }
-        }, { responsive: true });
-
-        // Element Reveals
-        gsap.from(".kpi-card", {
-            y: 40, opacity: 0, duration: 0.6, stagger: 0.1, ease: "power2.out"
-        });
-        gsap.from(".metric-box", {
-            scale: 0.95, opacity: 0, duration: 0.8, stagger: 0.2, ease: "back.out(1.2)", delay: 0.4
-        });
-    });
+    loadMetrics();
 </script>
 {% endblock %}

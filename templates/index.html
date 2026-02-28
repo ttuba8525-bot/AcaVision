@@ -163,7 +163,52 @@
         </div>
     </div>
 </section>
+
+<!-- About Section -->
+<section class="about-section" id="about">
+    <div class="section-header">
+        <p class="section-eyebrow">Our Team</p>
+        <h2 class="section-title">About AcaVision</h2>
+        <p class="section-sub">
+            AcaVision is an AI-powered student performance prediction system built by a 3-person team
+            as part of a machine learning project — combining real ML research with clean, interactive UI.
+        </p>
+    </div>
+
+    <div class="team-grid">
+        <div class="glass-card team-card magnetic">
+            <div class="team-avatar">🤖</div>
+            <div class="team-name">ML & Data Engineer</div>
+            <div class="team-role">Synthetic data · Model training · Preprocessing pipeline</div>
+        </div>
+        <div class="glass-card team-card magnetic">
+            <div class="team-avatar">⚙️</div>
+            <div class="team-name">Backend Engineer</div>
+            <div class="team-role">Flask API · Service layer · Prediction & Advisory engine</div>
+        </div>
+        <div class="glass-card team-card magnetic">
+            <div class="team-avatar">🎨</div>
+            <div class="team-name">Frontend Engineer</div>
+            <div class="team-role">UI Design · Templates · Animations · Chart dashboards</div>
+        </div>
+    </div>
+
+    <!-- Tech Stack Pills -->
+    <div class="text-center mt-4" style="margin-top:3rem;">
+        <p class="section-eyebrow mb-2">Built With</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;margin-top:0.75rem;">
+            {% for tech in ['Python', 'Flask', 'Scikit-learn', 'Pandas', 'NumPy', 'Chart.js', 'Plotly', 'GSAP',
+            'HTML/CSS/JS'] %}
+            <span style="background:rgba(79,140,255,0.12);border:1px solid rgba(79,140,255,0.3);
+                   padding:0.35rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;
+                   color:var(--primary-start);">{{ tech }}</span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
 {% endblock %}
+
 
 {% block scripts %}
 <script>
