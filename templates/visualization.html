@@ -73,7 +73,7 @@
             <!-- Column info -->
             <div class="glass mt-3" style="padding:1.2rem">
                 <div
-                    style="font-family:var(--font-mono);font-size:.7rem;color:var(--cyan);margin-bottom:.75rem;letter-spacing:1px">
+                    style="font-family:var(--font-mono);font-size:.7rem;color:var(--blue);margin-bottom:.75rem;letter-spacing:1px">
                     // REQUIRED CSV COLUMNS</div>
                 <div style="display:flex;flex-wrap:wrap;gap:.5rem">
                     {% for col in
@@ -98,7 +98,7 @@
                 </div>
                 <div class="glass" style="padding:1rem;overflow-x:auto">
                     <div
-                        style="font-family:var(--font-mono);font-size:.7rem;color:var(--cyan);margin-bottom:.75rem;letter-spacing:1px">
+                        style="font-family:var(--font-mono);font-size:.7rem;color:var(--blue);margin-bottom:.75rem;letter-spacing:1px">
                         // BATCH RESULTS</div>
                     <table class="data-table" id="results-table"></table>
                 </div>
@@ -133,8 +133,8 @@
     }
 
     .tab-btn.active {
-        color: var(--cyan);
-        border-bottom: 2px solid var(--cyan);
+        color: var(--blue);
+        border-bottom: 2px solid var(--blue);
     }
 </style>
 <script>
@@ -149,16 +149,16 @@
     // ── Chart helpers ───────────────────────────────────────────
     const COLORS = { 'High Risk': '#F87171', 'Medium Risk': '#FCD34D', 'Low Risk': '#10B981' };
     const PLOTLY_LAYOUT = {
-        paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-        font: { color: '#6B7280', size: 11, family: 'JetBrains Mono' },
+        paper_bgcolor: 'transparent', plot_bgcolor: 'rgba(255,253,231,0.3)',
+        font: { color: '#3D5A4C', size: 11, family: 'JetBrains Mono' },
         margin: { l: 40, r: 10, t: 10, b: 40 },
-        xaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.08)' },
-        yaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.08)' },
-        legend: { bgcolor: 'transparent' },
+        xaxis: { gridcolor: 'rgba(0,0,0,0.06)', zerolinecolor: 'rgba(0,0,0,0.1)' },
+        yaxis: { gridcolor: 'rgba(0,0,0,0.06)', zerolinecolor: 'rgba(0,0,0,0.1)' },
+        legend: { bgcolor: 'rgba(255,253,231,0.6)' },
     };
     const CHART_DEFAULTS = {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#6B7280', font: { family: 'JetBrains Mono', size: 10 } } } },
+        plugins: { legend: { labels: { color: '#3D5A4C', font: { family: 'JetBrains Mono', size: 10 } } } },
         scales: {}
     };
 
@@ -214,15 +214,16 @@
                 data: {
                     labels: pLabels,
                     datasets: [{
-                        data: pValues, backgroundColor: ['rgba(0,245,255,.7)', 'rgba(124,58,237,.7)', 'rgba(244,114,182,.7)', 'rgba(16,185,129,.7)'],
+                        data: pValues,
+                        backgroundColor: ['rgba(12,119,82,.75)', 'rgba(6,95,70,.75)', 'rgba(13,148,136,.75)', 'rgba(16,185,129,.75)'],
                         borderRadius: 6, borderSkipped: false
                     }]
                 },
                 options: {
                     ...CHART_DEFAULTS, maintainAspectRatio: true,
                     scales: {
-                        x: { ticks: { color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                        y: { ticks: { color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                        x: { ticks: { color: '#3D5A4C' }, grid: { color: 'rgba(0,0,0,0.06)' } },
+                        y: { ticks: { color: '#3D5A4C' }, grid: { color: 'rgba(0,0,0,0.06)' } }
                     },
                     plugins: { ...CHART_DEFAULTS.plugins, legend: { display: false } }
                 }
@@ -243,7 +244,7 @@
                 },
                 options: {
                     ...CHART_DEFAULTS, maintainAspectRatio: true,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#6B7280', font: { family: 'JetBrains Mono', size: 10 } } } }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#3D5A4C', font: { family: 'JetBrains Mono', size: 10 } } } }
                 }
             });
 
@@ -321,7 +322,7 @@
                     borderWidth: 1.5
                 }]
             },
-            options: { maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: '#6B7280' } } } }
+            options: { maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: '#3D5A4C' } } } }
         });
 
         // Table
