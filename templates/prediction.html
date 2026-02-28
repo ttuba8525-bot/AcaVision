@@ -98,12 +98,25 @@
             </div>
         </div>
 
-        <!-- RESULTS PANEL -->
+        <!-- Results / Error panel -->
+        <div id="error-box" class="hidden mt-3" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;
+                    padding:1rem 1.4rem;font-family:var(--font-mono);font-size:.82rem;color:#B91C1C">
+        </div>
         <div id="results-panel" class="hidden mt-4">
+            <!-- Top action bar -->
+            <div
+                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.75rem">
+                <div style="font-family:var(--font-mono);font-size:.75rem;color:var(--blue);letter-spacing:2px">//
+                    ANALYSIS RESULTS</div>
+                <button class="btn btn-outline-cyan" onclick="resetPrediction()"
+                    style="padding:.5rem 1.2rem;font-size:.82rem">
+                    <i class="fa-solid fa-rotate-left"></i>&nbsp; Predict Again
+                </button>
+            </div>
             <!-- Score cards -->
             <div class="result-grid" id="score-cards"></div>
 
-            <!-- Advisory + bar chart side by side -->
+            <!-- Advisory + Radar side by side -->
             <div class="grid-2 mt-3">
                 <div class="glass" style="padding:1.5rem">
                     <div
@@ -118,6 +131,44 @@
                         // YOUR FEATURE PROFILE
                     </div>
                     <canvas id="radar-chart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- ── Dataset Visualizations ── -->
+            <div
+                style="font-family:var(--font-mono);font-size:.8rem;color:var(--blue);letter-spacing:2px;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">
+                // DATASET VISUALIZATIONS &amp; YOUR POSITION
+            </div>
+            <div id="viz-loading" class="text-center" style="padding:1.5rem">
+                <div class="spinner"></div>
+                <p class="loading-text mt-2">Loading charts...</p>
+            </div>
+            <div id="viz-charts" class="hidden">
+                <div class="grid-2 mb-3">
+                    <!-- Scatter: where user sits vs dataset -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Your Position — Attendance vs Study Hours</div>
+                        <div id="pred-scatter" style="height:280px"></div>
+                    </div>
+                    <!-- Bar: Performance distribution -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Performance Category Distribution</div>
+                        <canvas id="pred-bar" style="max-height:280px"></canvas>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <!-- Donut: pass/fail ratio -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Pass vs Fail Ratio (Dataset)</div>
+                        <div style="max-width:280px;margin:0 auto">
+                            <canvas id="pred-pie" style="max-height:260px"></canvas>
+                        </div>
+                    </div>
+                    <!-- Grouped bar: user vs avg -->
+                    <div class="glass chart-card">
+                        <div class="chart-title">Your Metrics vs Dataset Average</div>
+                        <canvas id="pred-compare" style="max-height:260px"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -139,8 +190,8 @@
         const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
         el.style.setProperty('--pct', pct + '%');
     }
-    // Init all sliders on load
-    document.querySelectorAll('input[type="range"]').forEach(el => syncSlider(el, el.id.replace(/^[a-z_]+/, '')));
+    // Init all sliders on load — fire each slider's own oninput handler
+    document.querySelectorAll('input[type="range"]').forEach(el => el.dispatchEvent(new Event('input')));
 
     // ── Predict ────────────────────────────────────────────────
     const btn = document.getElementById('predict-btn');
@@ -168,10 +219,19 @@
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-            if (data.error) { alert('Error: ' + data.error); return; }
+            console.log('Predict response:', data);
+            if (data.error) {
+                const eb = document.getElementById('error-box');
+                eb.textContent = '// ERROR: ' + data.error;
+                eb.classList.remove('hidden');
+                return;
+            }
+            document.getElementById('error-box').classList.add('hidden');
             showResults(data, payload);
         } catch (e) {
-            alert('Server error — is Flask running?');
+            const eb = document.getElementById('error-box');
+            eb.textContent = '// SERVER ERROR: ' + e.message;
+            eb.classList.remove('hidden');
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-brain"></i> Run Analysis';
@@ -220,7 +280,7 @@
                     r: {
                         min: 0, max: 100,
                         grid: { color: 'rgba(0,0,0,0.08)' },
-                        pointLabels: { color: '#3D5A4C', font: { size: 10 } },
+                        pointLabels: { color: '#0C2D2A', font: { size: 10 } },
                         ticks: { display: false }
                     }
                 },
@@ -231,12 +291,146 @@
         document.getElementById('form-panel').classList.add('hidden');
         document.getElementById('results-panel').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        loadPredictionCharts(payload);
     }
 
     function resetPrediction() {
         document.getElementById('results-panel').classList.add('hidden');
         document.getElementById('form-panel').classList.remove('hidden');
+        // Destroy charts so they reinitialise cleanly next time
+        ['_predBar', '_predPie', '_predCompare'].forEach(k => { if (window[k]) { window[k].destroy(); window[k] = null; } });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Load visualisation charts after prediction ───────────────
+    const CHART_COLORS = {
+        'High Risk': '#F87171', 'Medium Risk': '#FCD34D', 'Low Risk': '#10B981'
+    };
+    const CHART_OPT = {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#0C2D2A', font: { family: 'JetBrains Mono', size: 10 } } } },
+        scales: {}
+    };
+
+    async function loadPredictionCharts(payload) {
+        document.getElementById('viz-loading').classList.remove('hidden');
+        document.getElementById('viz-charts').classList.add('hidden');
+        try {
+            const res = await fetch('/api/visualize');
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            // ── 1. Scatter: dataset points + user's dot highlighted ──
+            const groups = {};
+            data.clusters.labels.forEach((l, i) => {
+                if (!groups[l]) groups[l] = { x: [], y: [] };
+                groups[l].x.push(data.clusters.study_hours[i]);
+                groups[l].y.push(data.clusters.attendance[i]);
+            });
+            const scatterTraces = Object.entries(groups).map(([l, pts]) => ({
+                type: 'scatter', mode: 'markers', name: l, x: pts.x, y: pts.y,
+                marker: { color: CHART_COLORS[l] || '#0C7752', size: 4, opacity: .55 }
+            }));
+            // User's own dot
+            scatterTraces.push({
+                type: 'scatter', mode: 'markers+text', name: 'You',
+                x: [payload.study_hours], y: [payload.attendance],
+                text: ['YOU'], textposition: 'top center',
+                marker: {
+                    color: '#E36A6A', size: 14, symbol: 'star',
+                    line: { color: '#fff', width: 1.5 }
+                }
+            });
+            Plotly.newPlot('pred-scatter', scatterTraces, {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'rgba(255,253,231,0.3)',
+                font: { color: '#0C2D2A', size: 11, family: 'JetBrains Mono' },
+                margin: { l: 40, r: 10, t: 10, b: 40 },
+                xaxis: { title: 'Study Hrs/day', gridcolor: 'rgba(0,0,0,0.06)' },
+                yaxis: { title: 'Attendance (%)', gridcolor: 'rgba(0,0,0,0.06)' },
+                legend: { bgcolor: 'rgba(255,253,231,0.7)' }
+            }, { responsive: true, displayModeBar: false });
+
+            // ── 2. Bar: performance distribution ──
+            if (window._predBar) window._predBar.destroy();
+            const pLabels = Object.keys(data.performance), pVals = Object.values(data.performance);
+            window._predBar = new Chart(document.getElementById('pred-bar'), {
+                type: 'bar',
+                data: {
+                    labels: pLabels, datasets: [{
+                        data: pVals,
+                        backgroundColor: ['rgba(12,119,82,.75)', 'rgba(6,95,70,.75)', 'rgba(16,185,129,.75)', 'rgba(16,185,129,.75)'],
+                        borderRadius: 6, borderSkipped: false
+                    }]
+                },
+                options: {
+                    ...CHART_OPT,
+                    scales: {
+                        x: { ticks: { color: '#0C2D2A' }, grid: { color: 'rgba(0,0,0,0.06)' } },
+                        y: { ticks: { color: '#0C2D2A' }, grid: { color: 'rgba(0,0,0,0.06)' } }
+                    },
+                    plugins: { ...CHART_OPT.plugins, legend: { display: false } }
+                }
+            });
+
+            // ── 3. Donut: Pass / Fail ──
+            if (window._predPie) window._predPie.destroy();
+            const pfL = Object.keys(data.pass_fail), pfV = Object.values(data.pass_fail);
+            window._predPie = new Chart(document.getElementById('pred-pie'), {
+                type: 'doughnut',
+                data: {
+                    labels: pfL, datasets: [{
+                        data: pfV,
+                        backgroundColor: ['rgba(16,185,129,.8)', 'rgba(248,113,113,.8)'],
+                        borderColor: ['#10B981', '#F87171'], borderWidth: 1.5
+                    }]
+                },
+                options: {
+                    ...CHART_OPT,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#0C2D2A', font: { family: 'JetBrains Mono', size: 10 } } } }
+                }
+            });
+
+            // ── 4. Grouped bar: user vs dataset average ──
+            if (window._predCompare) window._predCompare.destroy();
+            // Compute dataset averages from cluster raw data
+            const n = data.clusters.attendance.length;
+            const avgAtt = data.clusters.attendance.reduce((s, v) => s + v, 0) / n;
+            const avgStudy = data.clusters.study_hours.reduce((s, v) => s + v, 0) / n;
+            window._predCompare = new Chart(document.getElementById('pred-compare'), {
+                type: 'bar',
+                data: {
+                    labels: ['Attendance (%)', 'Study Hrs/day'],
+                    datasets: [
+                        {
+                            label: 'You', data: [payload.attendance, payload.study_hours],
+                            backgroundColor: 'rgba(227,106,106,0.75)', borderRadius: 6, borderSkipped: false
+                        },
+                        {
+                            label: 'Avg', data: [Math.round(avgAtt * 10) / 10, Math.round(avgStudy * 10) / 10],
+                            backgroundColor: 'rgba(12,119,82,0.55)', borderRadius: 6, borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    ...CHART_OPT,
+                    scales: {
+                        x: { ticks: { color: '#0C2D2A' }, grid: { color: 'rgba(0,0,0,0.06)' } },
+                        y: { ticks: { color: '#0C2D2A' }, grid: { color: 'rgba(0,0,0,0.06)' } }
+                    },
+                    plugins: { legend: { labels: { color: '#0C2D2A' } } }
+                }
+            });
+
+            document.getElementById('viz-loading').classList.add('hidden');
+            document.getElementById('viz-charts').classList.remove('hidden');
+
+        } catch (e) {
+            document.getElementById('viz-loading').innerHTML =
+                `<p style="color:#B91C1C;font-family:var(--font-mono);font-size:.8rem">// Chart error: ${e.message}</p>`;
+        }
     }
 </script>
 {% endblock %}
+
+
+

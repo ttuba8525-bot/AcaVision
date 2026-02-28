@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AckVision – Frontend Dev Task Summary</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fb;
+            color: #1e2340;
+            padding: 40px;
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3a1a5e 0%, #6e1a8e 60%, #9e1abf 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .header .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .header .meta span {
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .branch-box {
+            background: #1e2340;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            border-left: 4px solid #9e1abf;
+        }
+
+        .branch-box .label {
+            color: #d07ccc;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .branch-box pre {
+            font-family: 'Fira Code', monospace;
+            color: #a8f0a8;
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 12px rgba(30, 35, 64, 0.07);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #eef0f8;
+        }
+
+        .card-header .icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6e1a8e, #9e1abf);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .card-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e2340;
+        }
+
+        .card-header h2 span {
+            color: #6e1a8e;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .file-item {
+            background: #faf0fd;
+            border: 1px solid #dbbcea;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-item .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #6e1a8e;
+            flex-shrink: 0;
+        }
+
+        .file-item code {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            color: #3a1a5e;
+        }
+
+        .task-block {
+            margin-bottom: 22px;
+        }
+
+        .task-block h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3a1a5e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-block h3 .num {
+            width: 22px;
+            height: 22px;
+            background: #6e1a8e;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-block ul {
+            list-style: none;
+            padding-left: 30px;
+        }
+
+        .task-block ul li {
+            padding: 3px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #444;
+        }
+
+        .task-block ul li::before {
+            content: '›';
+            color: #6e1a8e;
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+
+        .page-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 8px;
+        }
+
+        .page-table thead th {
+            background: #3a1a5e;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11.5px;
+        }
+
+        .page-table thead th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .page-table thead th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .page-table tbody tr {
+            border-bottom: 1px solid #f0f2fa;
+        }
+
+        .page-table tbody td {
+            padding: 9px 14px;
+            color: #333;
+        }
+
+        .page-table tbody tr:nth-child(even) td {
+            background: #faf0fd;
+        }
+
+        .code-block {
+            background: #1e2340;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 10px;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            color: #c8d3ff;
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+
+        .api-ref {
+            background: #f0fafd;
+            border: 1px solid #bce0ea;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 8px;
+        }
+
+        .api-ref .label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #1a6e8e;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .api-ref table {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse;
+        }
+
+        .api-ref td {
+            padding: 5px 8px;
+            color: #1a3a5e;
+        }
+
+        .api-ref tr:nth-child(even) td {
+            background: rgba(26, 110, 142, 0.06);
+        }
+
+        .route {
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .method {
+            display: inline-block;
+            font-size: 9.5px;
+            font-weight: 700;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .method.post {
+            background: #fff0e6;
+            color: #b85c00;
+        }
+
+        .method.get {
+            background: #e6f9ef;
+            color: #1a7a45;
+        }
+
+        .design-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .design-item {
+            background: #faf0fd;
+            border: 1px solid #dbbcea;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .design-item .title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6e1a8e;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 5px;
+        }
+
+        .design-item p {
+            font-size: 12px;
+            color: #444;
+        }
+
+        .important-box {
+            background: #fff8e6;
+            border: 1px solid #f5cc70;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 10px 0;
+        }
+
+        .important-box .label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #b85c00;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .important-box p {
+            font-size: 12.5px;
+            color: #5a3a00;
+        }
+
+        .handoff {
+            background: linear-gradient(135deg, #3a1a5e 0%, #6e1a8e 100%);
+            border-radius: 14px;
+            padding: 24px 28px;
+            color: white;
+        }
+
+        .handoff h2 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .handoff pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #c8ffd8;
+            line-height: 2;
+        }
+
+        .handoff p {
+            margin-top: 12px;
+            font-size: 12.5px;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 11px;
+            color: #9aa0c8;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #e0e3f5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="badge">🎓 AckVision Project</div>
+        <h1>Frontend Developer — Task Summary</h1>
+        <p>HTML Templates & Static Assets · Student Academic Performance Prediction System</p>
+        <div class="meta">
+            <span>👤 Role: Frontend Developer</span>
+            <span>🌿 Branch: frontend/ui-templates</span>
+            <span>⏳ Starts after Dev 2 merges to main</span>
+        </div>
+    </div>
+
+    <div class="branch-box">
+        <div class="label">⚡ Git Setup — Run after Dev 2 merges to main</div>
+        <pre>git clone https://github.com/ttuba8525-bot/AcaVision.git
+cd AcaVision
+git pull origin main
+git checkout -b frontend/ui-templates</pre>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="icon">📁</div>
+            <h2>Files You <span>Own</span></h2>
+        </div>
+        <div class="files-grid">
+            <div class="file-item">
+                <div class="dot"></div><code>templates/base.html</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>templates/index.html</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>templates/prediction.html</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>templates/visualization.html</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>templates/metrics.html</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>static/css/style.css</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>static/js/script.js</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>static/images/</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="icon">🌐</div>
+            <h2>Pages to <span>Build</span></h2>
+        </div>
+        <table class="page-table">
+            <thead>
+                <tr>
+                    <th>Template</th>
+                    <th>Route (Flask)</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>index.html</code></td>
+                    <td><code>GET /</code></td>
+                    <td>Landing page — project intro + navigation to features</td>
+                </tr>
+                <tr>
+                    <td><code>prediction.html</code></td>
+                    <td><code>POST /predict</code></td>
+                    <td>Input form + results display (score, pass/fail, performance, risk, advisory)</td>
+                </tr>
+                <tr>
+                    <td><code>visualization.html</code></td>
+                    <td><code>GET /visualize</code></td>
+                    <td>Charts — cluster scatter plot, feature distributions, performance breakdown</td>
+                </tr>
+                <tr>
+                    <td><code>metrics.html</code></td>
+                    <td><code>GET /metrics</code></td>
+                    <td>Model evaluation metrics — accuracy, R², MAE, F1 displayed as cards/tables</td>
+                </tr>
+                <tr>
+                    <td><code>base.html</code></td>
+                    <td>All pages</td>
+                    <td>Shared layout — navbar, footer, CSS/JS includes</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="icon">✅</div>
+            <h2>Tasks <span>In Order</span></h2>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">1</div>static/css/style.css — Global Stylesheet
+            </h3>
+            <ul>
+                <li>CSS custom properties (variables) for the color palette, spacing, and typography</li>
+                <li>Navbar, footer, card, button, form, table styles</li>
+                <li>Responsive layout — mobile-friendly (media queries for 768px, 480px)</li>
+                <li>Result display cards: color-coded by risk level (red=High, yellow=Medium, green=Low)</li>
+                <li>Chart container styles for the visualization page</li>
+            </ul>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">2</div>templates/base.html — Shared Layout
+            </h3>
+            <ul>
+                <li>Jinja2 block structure: <code>{% block title %}</code>, <code>{% block content %}</code></li>
+                <li>Include <code>style.css</code> and <code>script.js</code> via Flask's
+                    <code>url_for('static', ...)</code></li>
+                <li>Include <strong>Chart.js</strong> CDN for visualization page</li>
+                <li>Navbar with links: Home · Predict · Visualize · Metrics</li>
+            </ul>
+            <div class="code-block">
+                <pre>&lt;link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"&gt;
+&lt;script src="{{ url_for('static', filename='js/script.js') }}" defer&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</pre>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">3</div>templates/index.html — Home / Landing Page
+            </h3>
+            <ul>
+                <li>Hero section: project title, tagline, and a "Get Started" → /predict button</li>
+                <li>Feature cards: brief description of each ML model and what it does</li>
+                <li>Stats section: "1000+ student records · 4 ML models · Real-time predictions"</li>
+            </ul>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">4</div>templates/prediction.html — Prediction Form & Results
+            </h3>
+            <ul>
+                <li>Input form with all 9 feature fields (range sliders + number inputs)</li>
+                <li>Submit button → <code>POST /predict</code> via JavaScript fetch (AJAX, no page reload)</li>
+                <li>Results section (hidden initially, shown after prediction):</li>
+            </ul>
+            <div class="code-block">
+                <pre>// Fetch example (in script.js):
+fetch('/predict', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+})
+.then(res =&gt; res.json())
+.then(data =&gt; showResults(data));</pre>
+            </div>
+            <ul style="margin-top:10px;">
+                <li>Result cards: Predicted Score · Pass/Fail badge · Performance Category · Risk Cluster</li>
+                <li>Advisory section: bullet list of suggestions returned by the API</li>
+            </ul>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">5</div>templates/visualization.html — Charts Dashboard
+            </h3>
+            <ul>
+                <li>Fetch data from <code>GET /visualize</code> via JavaScript on page load</li>
+                <li>Render using <strong>Chart.js</strong>:</li>
+            </ul>
+            <div class="design-grid">
+                <div class="design-item">
+                    <div class="title">Scatter Plot</div>
+                    <p>Student clusters (High/Medium/Low Risk) plotted on Study Hours vs. Attendance axes</p>
+                </div>
+                <div class="design-item">
+                    <div class="title">Bar Chart</div>
+                    <p>Performance Category distribution (Excellent, Good, Average, Poor)</p>
+                </div>
+                <div class="design-item">
+                    <div class="title">Pie Chart</div>
+                    <p>Pass vs. Fail ratio across the dataset</p>
+                </div>
+                <div class="design-item">
+                    <div class="title">Line Chart</div>
+                    <p>Feature correlation overview (optional enhancement)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">6</div>templates/metrics.html — Model Evaluation
+            </h3>
+            <ul>
+                <li>Fetch data from <code>GET /metrics</code> via JavaScript on page load</li>
+                <li>Display metric cards for each model:</li>
+            </ul>
+            <table class="page-table" style="margin-top:8px;">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Metrics to Display</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Linear Regression</td>
+                        <td>MAE, RMSE, R² Score</td>
+                    </tr>
+                    <tr>
+                        <td>Decision Tree</td>
+                        <td>Accuracy, Precision, Recall, F1</td>
+                    </tr>
+                    <tr>
+                        <td>KNN</td>
+                        <td>Accuracy, F1 (per class)</td>
+                    </tr>
+                    <tr>
+                        <td>K-Means</td>
+                        <td>Silhouette Score, Inertia</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">7</div>static/js/script.js — Frontend Logic
+            </h3>
+            <ul>
+                <li>Prediction form submit handler (fetch + show results)</li>
+                <li>Chart rendering on visualization page</li>
+                <li>Metrics data fetch and card population</li>
+                <li>Form validation (check all fields filled before submitting)</li>
+                <li>Range slider ↔ number input sync for each feature field</li>
+            </ul>
+        </div>
+
+        <div class="important-box">
+            <div class="label">⚠ API Contract — What Dev 2 Returns</div>
+            <p>The <code>POST /predict</code> endpoint returns JSON. Design your results section around this structure:
+            </p>
+            <div style="margin-top:10px;background:#1e2340;border-radius:8px;padding:14px 16px;">
+                <pre style="font-family:'Fira Code',monospace;font-size:11.5px;color:#c8d3ff;line-height:1.7;">{
+  "exam_score": 74.5,
+  "pass_fail": "Pass",
+  "performance": "Good",
+  "risk_cluster": "Low Risk",
+  "advisory": ["Increase study hours", "Improve attendance"]
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="handoff">
+        <h2>🤝 Handoff — Push When Done</h2>
+        <pre>git add .
+git commit -m "feat: html templates, css styling, js frontend logic"
+git push origin frontend/ui-templates</pre>
+        <p>Open a Pull Request to <code>main</code> on GitHub. Since you only touch <code>templates/</code> and
+            <code>static/</code> — files no other dev touched — the merge will be <strong>automatic with zero
+                conflicts.</strong></p>
+    </div>
+
+    <div class="footer">AckVision · Student Academic Performance Prediction System · Frontend Dev Brief</div>
+</body>
+
+</html>

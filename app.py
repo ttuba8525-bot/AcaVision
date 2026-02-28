@@ -179,20 +179,39 @@ def upload():
 
     try:
         import pandas as pd
+
         df = pd.read_csv(file)
 
-        missing_cols = [c for c in config.FEATURE_COLUMNS if c not in df.columns]
+        # Support both header styles: "attendance" (app style) or "Attendance (%)" (CSV style)
+        COL_MAP = {
+            "Attendance (%)":           "attendance",
+            "Study Hours (per day)":    "study_hours",
+            "Assignment Score":         "assignment_score",
+            "Previous GPA":             "previous_gpa",
+            "Participation Level":      "participation_level",
+            "Internet Usage (hrs/day)": "internet_usage",
+            "Sleep Hours":              "sleep_hours",
+            "Family Support Index":     "family_support",
+            "Extra Curricular":         "extra_curricular",
+        }
+        # Rename CSV-style headers to app-style keys if present
+        df.rename(columns=COL_MAP, inplace=True)
+
+        REQUIRED = ["attendance","study_hours","assignment_score","previous_gpa",
+                    "participation_level","internet_usage","sleep_hours",
+                    "family_support","extra_curricular"]
+        missing_cols = [c for c in REQUIRED if c not in df.columns]
         if missing_cols:
             return jsonify({"error": f"CSV missing columns: {missing_cols}"}), 400
 
         results = []
         for _, row in df.iterrows():
-            row_dict  = row.to_dict()
+            row_dict     = row.to_dict()
             exam_score   = prediction_service.predict_exam_score(row_dict)
             pass_fail    = prediction_service.predict_pass_fail(row_dict)
             performance  = prediction_service.predict_performance(row_dict)
             risk_cluster = clustering_service.assign_risk_cluster(row_dict)
-            advisory_list = get_advisory(exam_score, pass_fail, performance, risk_cluster)
+            advisory_list = get_advisory(exam_score, pass_fail, performance, risk_cluster, row_dict)
 
             results.append({
                 **row_dict,

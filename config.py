@@ -49,7 +49,7 @@ FEATURE_COLUMNS = [
 # Used by prediction_service and clustering_service
 #   to decode model outputs back to human-readable labels.
 
-# Dev 1 used LabelEncoder on Pass/Fail — encoded alphabetically: Fail=0, Pass=1
+# LabelEncoder encodes alphabetically: Fail=0, Pass=1
 PASS_FAIL_LABELS = {0: "Fail", 1: "Pass"}
 
 # Dev 1's Performance Category values in CSV: Low, Medium, High
@@ -60,12 +60,13 @@ PERFORMANCE_LABELS = {
     2: "Medium",
 }
 
-# K-Means cluster → risk label mapping.
-# Verify cluster centroids after testing — swap if labels seem reversed.
+# K-Means cluster → risk label mapping (derived from training: cluster with
+# lowest avg score = High Risk, middle = Medium Risk, highest = Low Risk)
+# Training output: {2: 2, 0: 1, 1: 0} where value 0=Low,1=Med,2=High Risk
 RISK_LABELS = {
-    0: "High Risk",
-    1: "Medium Risk",
-    2: "Low Risk",
+    0: "Medium Risk",
+    1: "Low Risk",
+    2: "High Risk",
 }
 
 # ── Upload Settings ───────────────────────────────────────────

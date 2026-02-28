@@ -99,3 +99,4 @@ document.querySelectorAll('input[type="range"]').forEach(el => {
     const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
     el.style.setProperty('--pct', pct + '%');
 });
+

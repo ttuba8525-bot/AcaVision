@@ -1,39 +1,233 @@
 {% extends 'base.html' %}
-
 {% block head %}
 <style>
+    /* ── Metrics Page ──────────────────────────────────────────── */
     .metrics-page {
-        padding: 4rem 1.5rem;
+        padding: 5rem 1.5rem 4rem;
         max-width: 1100px;
         margin: 0 auto;
     }
 
-    .model-block {
-        margin-bottom: 3rem;
+    /* Model card wrapper */
+    .model-card {
+        background: linear-gradient(135deg, #fffde7 0%, #f5fdf9 100%);
+        border: 1.5px solid rgba(12, 119, 82, 0.18);
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 6px 28px rgba(12, 119, 82, 0.08);
+        transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s;
     }
 
-    .model-block-header {
+    .model-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 40px rgba(12, 119, 82, 0.14);
+    }
+
+    /* Header inside each model card */
+    .mc-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-glass);
+        gap: 1.1rem;
+        margin-bottom: 1.8rem;
+        padding-bottom: 1.2rem;
+        border-bottom: 1px solid rgba(12, 119, 82, 0.14);
+        flex-wrap: wrap;
     }
 
-    .model-badge {
-        padding: 0.3rem 0.9rem;
-        border-radius: 20px;
-        font-size: 0.78rem;
+    .mc-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+
+    .mc-name {
+        font-size: 1.1rem;
         font-weight: 700;
-        background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
-        color: white;
+        color: #1A2E1A;
     }
 
-    .metrics-cards {
+    .mc-task {
+        font-size: .78rem;
+        color: #4A8070;
+        margin-top: .2rem;
+        font-family: var(--font-mono);
+    }
+
+    .mc-badge {
+        margin-left: auto;
+        padding: .35rem 1rem;
+        border-radius: 20px;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+    }
+
+    /* Metric stat cards grid */
+    .stat-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
         gap: 1rem;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.2rem 1rem 1rem;
+        border: 1.5px solid rgba(12, 119, 82, 0.12);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(12, 119, 82, 0.35);
+        box-shadow: 0 4px 16px rgba(12, 119, 82, 0.1);
+    }
+
+    .stat-card::before {
+        /* top accent stripe */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .stat-label {
+        font-family: var(--font-mono);
+        font-size: .65rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #6B7280;
+        margin-bottom: .6rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: .5rem;
+    }
+
+    /* Progress bar under value */
+    .stat-bar-wrap {
+        height: 5px;
+        background: rgba(0, 0, 0, 0.07);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: .5rem;
+    }
+
+    .stat-bar {
+        height: 100%;
+        border-radius: 8px;
+        transition: width .8s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* Per-model color themes */
+    .theme-teal .mc-icon {
+        background: rgba(12, 119, 82, 0.12);
+        color: #0C7752;
+    }
+
+    .theme-teal .mc-badge {
+        background: rgba(12, 119, 82, 0.12);
+        color: #065F46;
+    }
+
+    .theme-teal .stat-card::before {
+        background: #0C7752;
+    }
+
+    .theme-teal .stat-value {
+        color: #0C7752;
+    }
+
+    .theme-teal .stat-bar {
+        background: #0C7752;
+    }
+
+    .theme-amber .mc-icon {
+        background: rgba(217, 119, 6, 0.12);
+        color: #B45309;
+    }
+
+    .theme-amber .mc-badge {
+        background: rgba(217, 119, 6, 0.12);
+        color: #92400E;
+    }
+
+    .theme-amber .stat-card::before {
+        background: #D97706;
+    }
+
+    .theme-amber .stat-value {
+        color: #B45309;
+    }
+
+    .theme-amber .stat-bar {
+        background: #D97706;
+    }
+
+    .theme-rose .mc-icon {
+        background: rgba(225, 29, 72, 0.10);
+        color: #BE123C;
+    }
+
+    .theme-rose .mc-badge {
+        background: rgba(225, 29, 72, 0.10);
+        color: #9F1239;
+    }
+
+    .theme-rose .stat-card::before {
+        background: #E11D48;
+    }
+
+    .theme-rose .stat-value {
+        color: #BE123C;
+    }
+
+    .theme-rose .stat-bar {
+        background: #E11D48;
+    }
+
+    .theme-indigo .mc-icon {
+        background: rgba(79, 70, 229, 0.10);
+        color: #0C7752;
+    }
+
+    .theme-indigo .mc-badge {
+        background: rgba(79, 70, 229, 0.10);
+        color: #065F46;
+    }
+
+    .theme-indigo .stat-card::before {
+        background: #4F46E5;
+    }
+
+    .theme-indigo .stat-value {
+        color: #0C7752;
+    }
+
+    .theme-indigo .stat-bar {
+        background: #4F46E5;
+    }
+
+    /* Loading / error */
+    .metrics-loading {
+        text-align: center;
+        padding: 4rem 0;
     }
 </style>
 {% endblock %}
@@ -41,85 +235,118 @@
 {% block content %}
 <div class="metrics-page">
 
-    <div class="section-header">
-        <p class="section-eyebrow">Model Evaluation</p>
-        <h1 class="section-title">Performance Metrics</h1>
-        <p class="section-sub">Evaluation scores for all 4 trained models computed on the full synthetic dataset.</p>
+    <div class="text-center mb-4" data-aos="fade-up">
+        <div class="eyebrow">Model Evaluation</div>
+        <h1 class="section-title">Performance <span class="accent">Metrics</span></h1>
+        <p style="color:var(--muted);max-width:520px;margin:.75rem auto 0;font-size:.92rem">
+            Live evaluation scores for all 4 AI models — computed on the full synthetic dataset each time this page
+            loads.
+        </p>
     </div>
 
-    <div id="loading" class="text-center">
+    <div id="loading" class="metrics-loading">
         <div class="spinner"></div>
-        <p style="color:var(--text-muted);">Evaluating models...</p>
+        <p class="loading-text mt-2">Evaluating models on dataset…</p>
     </div>
 
-    <div id="metrics-container" class="hidden"></div>
-    <div id="error-msg" class="hidden text-center mt-4" style="color:var(--danger);"></div>
+    <div id="metrics-container"></div>
+
+    <div id="error-msg" class="hidden text-center mt-4" style="color:#B91C1C;font-family:var(--font-mono);font-size:.85rem;
+                background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);
+                border-radius:10px;padding:1.2rem"></div>
 
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const modelIcons = {
-        linear_regression: 'fa-chart-line',
-        decision_tree: 'fa-sitemap',
-        knn: 'fa-circle-nodes',
-        kmeans: 'fa-object-group',
+    const MODEL_META = {
+        linear_regression: { icon: 'fa-chart-line', theme: 'theme-teal', label: 'Linear Reg' },
+        decision_tree: { icon: 'fa-sitemap', theme: 'theme-amber', label: 'Decision Tree' },
+        knn: { icon: 'fa-circle-nodes', theme: 'theme-rose', label: 'KNN' },
+        kmeans: { icon: 'fa-object-group', theme: 'theme-indigo', label: 'K-Means' },
     };
 
-    const metricLabels = {
-        mae: 'MAE', rmse: 'RMSE', r2: 'R² Score',
-        accuracy: 'Accuracy', f1: 'F1 Score',
-        precision: 'Precision', recall: 'Recall',
-        silhouette_score: 'Silhouette', inertia: 'Inertia', n_clusters: 'Clusters'
+    const METRIC_META = {
+        mae: { label: 'MAE', desc: 'Mean Absolute Error — lower is better', max: null, good: 'low' },
+        rmse: { label: 'RMSE', desc: 'Root Mean Square Error — lower is better', max: null, good: 'low' },
+        r2: { label: 'R² Score', desc: 'Variance explained — higher is better', max: 1, good: 'high' },
+        accuracy: { label: 'Accuracy', desc: 'Fraction of correct predictions', max: 1, good: 'high' },
+        f1: { label: 'F1 Score', desc: 'Harmonic mean of precision & recall', max: 1, good: 'high' },
+        precision: { label: 'Precision', desc: 'True positives / predicted positives', max: 1, good: 'high' },
+        recall: { label: 'Recall', desc: 'True positives / actual positives', max: 1, good: 'high' },
+        silhouette_score: { label: 'Silhouette', desc: 'Cluster separation quality (-1 to 1)', max: 1, good: 'high' },
+        inertia: { label: 'Inertia', desc: 'Sum of squared distances — lower is better', max: null, good: 'low' },
+        n_clusters: { label: 'Clusters', desc: 'Number of K-Means clusters', max: null, good: null },
     };
+
+    function barWidth(key, value) {
+        const m = METRIC_META[key];
+        if (!m || m.max === null) return 0;
+        if (m.good === 'high') return Math.min(100, Math.round(value * 100));
+        return 0; // don't show bar for "lower is better" unbounded metrics
+    }
+
+    function formatVal(key, val) {
+        if (key === 'n_clusters') return val;
+        if (typeof val === 'number') return Number.isInteger(val) ? val : val.toFixed(4);
+        return val;
+    }
 
     async function loadMetrics() {
         try {
             const res = await fetch('/api/metrics');
             const data = await res.json();
-
             if (data.status === 'error') throw new Error(data.message);
 
             document.getElementById('loading').classList.add('hidden');
             const container = document.getElementById('metrics-container');
-            container.classList.remove('hidden');
 
-            Object.entries(data.metrics).forEach(([key, model]) => {
-                const metricKeys = Object.keys(model).filter(k => !['name', 'task'].includes(k));
+            Object.entries(data.metrics).forEach(([key, model], idx) => {
+                const meta = MODEL_META[key] || { icon: 'fa-robot', theme: 'theme-teal', label: key };
+                const statKeys = Object.keys(model).filter(k => !['name', 'task'].includes(k));
 
-                const cardsHTML = metricKeys.map(mk => `
-        <div class="glass-card metric-card">
-          <div class="m-label">${metricLabels[mk] || mk}</div>
-          <div class="m-value">${typeof model[mk] === 'number' && !Number.isInteger(model[mk])
-                        ? model[mk].toFixed(4) : model[mk]}</div>
-        </div>
-      `).join('');
+                const statsHTML = statKeys.map(mk => {
+                    const mm = METRIC_META[mk] || { label: mk, desc: '', max: null, good: null };
+                    const bw = barWidth(mk, model[mk]);
+                    const barHTML = mm.max !== null
+                        ? `<div class="stat-bar-wrap"><div class="stat-bar" style="width:${bw}%"></div></div>` : '';
+                    return `
+                <div class="stat-card" title="${mm.desc}">
+                    <div class="stat-label">${mm.label}</div>
+                    <div class="stat-value">${formatVal(mk, model[mk])}</div>
+                    ${barHTML}
+                </div>`;
+                }).join('');
 
-                const block = document.createElement('div');
-                block.className = 'model-block glass-card';
-                block.innerHTML = `
-        <div class="model-block-header">
-          <i class="fa-solid ${modelIcons[key] || 'fa-robot'}" style="color:var(--primary-start);font-size:1.4rem;"></i>
-          <div>
-            <h2 style="font-size:1.1rem;font-weight:700;">${model.name}</h2>
-            <p style="font-size:0.82rem;color:var(--text-muted);">${model.task}</p>
-          </div>
-          <span class="model-badge" style="margin-left:auto;">${key.replace('_', ' ').toUpperCase()}</span>
-        </div>
-        <div class="metrics-cards">${cardsHTML}</div>
-      `;
-                container.appendChild(block);
+                const card = document.createElement('div');
+                card.className = `model-card ${meta.theme}`;
+                card.setAttribute('data-aos', 'fade-up');
+                card.setAttribute('data-aos-delay', idx * 80);
+                card.innerHTML = `
+            <div class="mc-header">
+                <div class="mc-icon"><i class="fa-solid ${meta.icon}"></i></div>
+                <div>
+                    <div class="mc-name">${model.name}</div>
+                    <div class="mc-task">${model.task}</div>
+                </div>
+                <span class="mc-badge">${meta.label}</span>
+            </div>
+            <div class="stat-grid">${statsHTML}</div>`;
+                container.appendChild(card);
             });
 
         } catch (err) {
             document.getElementById('loading').classList.add('hidden');
-            const errEl = document.getElementById('error-msg');
-            errEl.classList.remove('hidden');
-            errEl.textContent = 'Could not load metrics: ' + err.message;
+            const el = document.getElementById('error-msg');
+            el.classList.remove('hidden');
+            el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>&nbsp; Could not load metrics: <strong>${err.message}</strong>`;
         }
     }
-
     loadMetrics();
 </script>
 {% endblock %}
+
+
+
+

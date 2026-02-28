@@ -35,13 +35,9 @@ def get_cluster_data_for_visualization() -> dict:
     """
     Returns raw cluster assignment data for all records in the dataset.
     Used by the /visualize route to generate the scatter plot.
-
-    Returns:
-        dict with:
-          - 'labels': list of risk group strings for each student
-          - 'cluster_ids': list of raw cluster integers
     """
     import pandas as pd
+    import joblib
     from utils.preprocessing import get_scaler
 
     try:
@@ -49,11 +45,16 @@ def get_cluster_data_for_visualization() -> dict:
         model   = model_loader.get_kmeans()
         scaler  = get_scaler()
 
-        feature_cols = config.FEATURE_COLUMNS
-        X            = df[feature_cols].values
-        X_scaled     = scaler.transform(X)
-        cluster_ids  = model.predict(X_scaled).tolist()
-        labels       = [config.RISK_LABELS.get(c, "Unknown") for c in cluster_ids]
+        part_enc  = joblib.load(config.PARTICIPATION_ENCODER_PATH)
+        extra_enc = joblib.load(config.EXTRA_ENCODER_PATH)
+
+        # Encode categoricals before scaling — same as training
+        df["Participation Level"] = part_enc.transform(df["Participation Level"])
+        df["Extra Curricular"]    = extra_enc.transform(df["Extra Curricular"])
+
+        X_scaled    = scaler.transform(df[config.FEATURE_COLUMNS].values)
+        cluster_ids = model.predict(X_scaled).tolist()
+        labels      = [config.RISK_LABELS.get(c, "Unknown") for c in cluster_ids]
 
         return {
             "cluster_ids": cluster_ids,

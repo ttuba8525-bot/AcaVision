@@ -91,6 +91,14 @@ def preprocess_and_split(test_size=0.2, random_state=42):
 
 
 # =========================================
+# SCALER ACCESSOR (used by clustering_service & metrics_service)
+# =========================================
+def get_scaler():
+    """Returns the saved StandardScaler from models/scaler.pkl."""
+    return joblib.load(os.path.join(BASE_DIR, "models", "scaler.pkl"))
+
+
+# =========================================
 # REQUIRED FUNCTION (DO NOT CHANGE NAME)
 # =========================================
 def get_feature_array(form_data: dict) -> np.ndarray:

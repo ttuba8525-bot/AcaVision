@@ -29,6 +29,13 @@ def get_all_metrics() -> dict:
     try:
         df      = pd.read_csv(config.DATA_PATH)
         scaler  = joblib.load(config.SCALER_PATH)
+        part_enc = joblib.load(config.PARTICIPATION_ENCODER_PATH)
+        extra_enc = joblib.load(config.EXTRA_ENCODER_PATH)
+
+        # Encode categorical input features BEFORE scaling (same as training)
+        df["Participation Level"] = part_enc.transform(df["Participation Level"])
+        df["Extra Curricular"]    = extra_enc.transform(df["Extra Curricular"])
+
         X       = scaler.transform(df[config.FEATURE_COLUMNS].values)
 
         metrics = {}

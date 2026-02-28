@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AckVision – Dev 2 Task Summary</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fb;
+            color: #1e2340;
+            padding: 40px;
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3a5e 0%, #1a6e8e 60%, #1a9ebf 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .header .meta {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .header .meta span {
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .branch-box {
+            background: #1e2340;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            border-left: 4px solid #1a9ebf;
+        }
+
+        .branch-box .label {
+            color: #7cc8d9;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .branch-box pre {
+            font-family: 'Fira Code', monospace;
+            color: #a8f0a8;
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 12px rgba(30, 35, 64, 0.07);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #eef0f8;
+        }
+
+        .card-header .icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1a6e8e, #1a9ebf);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .card-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e2340;
+        }
+
+        .card-header h2 span {
+            color: #1a6e8e;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .file-item {
+            background: #f0fafd;
+            border: 1px solid #bce0ea;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-item .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #1a6e8e;
+            flex-shrink: 0;
+        }
+
+        .file-item code {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            color: #1a3a5e;
+        }
+
+        .task-block {
+            margin-bottom: 22px;
+        }
+
+        .task-block h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a3a5e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-block h3 .num {
+            width: 22px;
+            height: 22px;
+            background: #1a6e8e;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-block ul {
+            list-style: none;
+            padding-left: 30px;
+        }
+
+        .task-block ul li {
+            padding: 3px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #444;
+        }
+
+        .task-block ul li::before {
+            content: '›';
+            color: #1a6e8e;
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+
+        .routes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 8px;
+        }
+
+        .routes-table thead th {
+            background: #1a3a5e;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11.5px;
+        }
+
+        .routes-table thead th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .routes-table thead th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .routes-table tbody tr {
+            border-bottom: 1px solid #f0f2fa;
+        }
+
+        .routes-table tbody td {
+            padding: 9px 14px;
+            color: #333;
+        }
+
+        .routes-table tbody tr:nth-child(even) td {
+            background: #f0fafd;
+        }
+
+        .method {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .method.post {
+            background: #fff0e6;
+            color: #b85c00;
+        }
+
+        .method.get {
+            background: #e6f9ef;
+            color: #1a7a45;
+        }
+
+        .code-block {
+            background: #1e2340;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 10px;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            color: #c8d3ff;
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+
+        .dep-box {
+            background: #f0fafd;
+            border: 1px solid #bce0ea;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 8px;
+        }
+
+        .dep-box p {
+            font-size: 12.5px;
+            color: #1a3a5e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .dep-box ul {
+            list-style: none;
+            padding-left: 12px;
+        }
+
+        .dep-box ul li {
+            font-size: 12px;
+            color: #444;
+            padding: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dep-box ul li::before {
+            content: '✓';
+            color: #1a6e8e;
+            font-weight: 700;
+        }
+
+        .important-box {
+            background: #fff8e6;
+            border: 1px solid #f5cc70;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 10px 0;
+        }
+
+        .important-box .label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #b85c00;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .important-box p {
+            font-size: 12.5px;
+            color: #5a3a00;
+        }
+
+        .handoff {
+            background: linear-gradient(135deg, #1a3a5e 0%, #1a6e8e 100%);
+            border-radius: 14px;
+            padding: 24px 28px;
+            color: white;
+        }
+
+        .handoff h2 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .handoff pre {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #c8ffd8;
+            line-height: 2;
+        }
+
+        .handoff p {
+            margin-top: 12px;
+            font-size: 12.5px;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 11px;
+            color: #9aa0c8;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #e0e3f5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="badge">🎓 AckVision Project</div>
+        <h1>Developer 2 — Task Summary</h1>
+        <p>Flask API & Service Layer · Student Academic Performance Prediction System</p>
+        <div class="meta">
+            <span>👤 Role: Backend API / Service Layer Engineer</span>
+            <span>🌿 Branch: dev2/flask-api</span>
+            <span>⏳ Starts after Dev 1 merges to main</span>
+        </div>
+    </div>
+
+    <div class="branch-box">
+        <div class="label">⚡ Git Setup — Run after Dev 1 merges to main</div>
+        <pre>git clone https://github.com/ttuba8525-bot/AcaVision.git
+cd AcaVision
+git pull origin main
+git checkout -b dev2/flask-api</pre>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="icon">📁</div>
+            <h2>Files You <span>Own</span></h2>
+        </div>
+        <div class="files-grid">
+            <div class="file-item">
+                <div class="dot"></div><code>config.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>utils/model_loader.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>utils/prediction_service.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>utils/clustering_service.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>utils/advisory.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>app.py</code>
+            </div>
+            <div class="file-item">
+                <div class="dot"></div><code>README.md</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="icon">✅</div>
+            <h2>Tasks <span>In Order</span></h2>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">1</div>config.py — Application Configuration
+            </h3>
+            <ul>
+                <li>Define paths to all <code>.pkl</code> model files (relative to project root)</li>
+                <li>Define path to <code>data/synthetic_data.csv</code></li>
+                <li>Flask <code>SECRET_KEY</code> and <code>DEBUG</code> flag</li>
+                <li>Any feature column names/order used during training (must match Dev 1's preprocessing)</li>
+            </ul>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">2</div>utils/model_loader.py — Load All Models
+            </h3>
+            <ul>
+                <li>Load all 4 <code>.pkl</code> files at app startup using <code>joblib.load()</code></li>
+                <li>Expose getter functions: <code>get_linear()</code>, <code>get_decision_tree()</code>,
+                    <code>get_knn()</code>, <code>get_kmeans()</code></li>
+                <li>Handle <code>FileNotFoundError</code> gracefully with clear messages</li>
+            </ul>
+            <div class="code-block">
+                <pre>import joblib, config
+
+_models = {}
+
+def load_all():
+    _models['linear']  = joblib.load(config.LINEAR_MODEL_PATH)
+    _models['dt']      = joblib.load(config.DT_MODEL_PATH)
+    _models['knn']     = joblib.load(config.KNN_MODEL_PATH)
+    _models['kmeans']  = joblib.load(config.KMEANS_MODEL_PATH)
+
+def get_linear():        return _models['linear']
+def get_decision_tree(): return _models['dt']
+def get_knn():           return _models['knn']
+def get_kmeans():        return _models['kmeans']</pre>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">3</div>utils/prediction_service.py — Predictions
+            </h3>
+            <ul>
+                <li>Import <code>get_feature_array()</code> from Dev 1's <code>preprocessing.py</code></li>
+                <li>Implement three functions using loaded models:</li>
+            </ul>
+            <div class="code-block">
+                <pre>def predict_exam_score(form_data: dict) -> float:
+    """Linear Regression → Final Exam Score"""
+
+def predict_pass_fail(form_data: dict) -> str:
+    """Decision Tree → 'Pass' or 'Fail'"""
+
+def predict_performance(form_data: dict) -> str:
+    """KNN → 'Excellent' / 'Good' / 'Average' / 'Poor'"""</pre>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">4</div>utils/clustering_service.py — Risk Clustering
+            </h3>
+            <ul>
+                <li>Use the loaded K-Means model to assign a risk cluster to a student</li>
+                <li>Map cluster numbers to labels: <strong>High Risk / Medium Risk / Low Risk</strong></li>
+            </ul>
+            <div class="code-block">
+                <pre>def assign_risk_cluster(form_data: dict) -> str:
+    """KMeans → 'High Risk' / 'Medium Risk' / 'Low Risk'"""</pre>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">5</div>utils/advisory.py — Academic Suggestions
+            </h3>
+            <ul>
+                <li>Takes combined prediction output as input</li>
+                <li>Returns rule-based personalized advice strings based on score, pass/fail, performance, and risk</li>
+            </ul>
+            <div class="code-block">
+                <pre>def get_advisory(score, pass_fail, performance, risk_cluster) -> list[str]:
+    """Returns list of advisory messages for the student."""</pre>
+            </div>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">6</div>app.py — Flask Routes
+            </h3>
+            <table class="routes-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Route</th>
+                        <th>Description</th>
+                        <th>Returns</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td><code>/</code></td>
+                        <td>Home page</td>
+                        <td>Renders index.html</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method post">POST</span></td>
+                        <td><code>/predict</code></td>
+                        <td>Run all 4 predictions</td>
+                        <td>JSON (score, pass/fail, performance, risk, advisory)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td><code>/metrics</code></td>
+                        <td>Model evaluation data</td>
+                        <td>JSON (MAE, R², Accuracy, F1 etc.)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td><code>/visualize</code></td>
+                        <td>Chart data for frontend</td>
+                        <td>JSON (cluster data, feature distributions)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method get">GET</span></td>
+                        <td><code>/advisory</code></td>
+                        <td>Standalone advisory</td>
+                        <td>JSON (suggestions)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method post">POST</span></td>
+                        <td><code>/upload</code></td>
+                        <td>CSV file upload</td>
+                        <td>JSON (batch predictions)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="task-block">
+            <h3>
+                <div class="num">7</div>README.md — Project Setup Instructions
+            </h3>
+            <ul>
+                <li>Installation steps: <code>pip install -r requirements.txt</code></li>
+                <li>How to run: <code>python app.py</code></li>
+                <li>API endpoint documentation</li>
+                <li>Project structure overview</li>
+            </ul>
+        </div>
+
+        <div class="important-box">
+            <div class="label">⚠ Integration Dependency</div>
+            <p>You depend on Dev 1's <code>preprocessing.py</code> exposing <code>get_feature_array(form_data)</code>.
+                Do not duplicate preprocessing logic — always call this function before passing data to any model.</p>
+        </div>
+    </div>
+
+    <div class="handoff">
+        <h2>🤝 Handoff — Push When Done</h2>
+        <pre>git add .
+git commit -m "feat: flask api, service layer, prediction & advisory endpoints"
+git push origin dev2/flask-api</pre>
+        <p>Open a Pull Request to <code>main</code> on GitHub. Frontend Dev will pull <code>main</code> and wire up the
+            HTML templates to your API endpoints. Since all files are separate, merge is automatic with zero conflicts.
+        </p>
+    </div>
+
+    <div class="footer">AckVision · Student Academic Performance Prediction System · Dev 2 Brief</div>
+</body>
+
+</html>
